@@ -14,10 +14,8 @@
 	Cette ligne va permettre d'ajouter un fichier resources.py et resources.qrc dans le fichier QuickIGN. Ces fichiers sont nécessaires à l'ajout de toutes images.
 
 5. Ouvrir QGis, Aller dans Extensions > Installer/Gérer les extensions. Tapez dans la barre de recherche QuickIGN puis cochez le plugin comme ci-dessous :
-<p align="center">
 	![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/quickign.png)
 	Cette action peut nécessiter, dans certains cas, un redémarrage du logiciel.
-	</p>
 
 6. Cliquez sur le logo apparu dans la barre des outils dockwidget (voir ci-dessous) :
 ![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/logo.png)
