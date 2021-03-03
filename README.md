@@ -21,9 +21,9 @@
 	Cette action peut nécessiter, dans certains cas, un redémarrage du logiciel.
 
  6. Cliquez sur le logo apparu dans la barre des outils dockwidget (voir ci-dessous) :
-![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/logo.png)
+	![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/logo.png)
 	
-La première fenêtre va permettre de manipuler les différents font de cartes en cochant ou décichant les cases.
+	La première fenêtre va permettre de manipuler les différents font de cartes en cochant ou décichant les cases.
 		
 	<p align="center">
 		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiin.png">
