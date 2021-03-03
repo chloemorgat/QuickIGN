@@ -20,16 +20,15 @@
 	 <p>
 	Cette action peut nécessiter, dans certains cas, un redémarrage du logiciel.
 
-<!-- 6. Cliquez sur le logo apparu dans la barre des outils dockwidget (voir ci-dessous) :
+ 6. Cliquez sur le logo apparu dans la barre des outils dockwidget (voir ci-dessous) :
 ![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/logo.png)
-<p align="center">
-
-	La première fenêtre va permettre de manipuler les différents font de cartes en cochant ou décichant les cases.
-	![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiin.png)
 	
+		La première fenêtre va permettre de manipuler les différents font de cartes en cochant ou décichant les cases.
+		
+	<p align="center">
+		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiin.png">
+	<p>
 		La deuxième fenêtre va permetre de manipuler les couches de la BDTopo d'un département que l'utilisateurs a, au préalable, téléchargé sur le site de l'IGN. Pour obtenir ces couches de vecteurs, le Plugin nécessite d'avoir le chemin indiquant l'emplacement de la BDTopo dans l'ordinateur.
-	
-	![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiiin*.png)
-	</p> -->
-	
-	
+	<p align="center">
+		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiiin*.png">
+	<p>
