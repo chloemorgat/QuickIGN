@@ -8,10 +8,8 @@
 3. Ouvrir un terminal dans le fichier QuickIGN (clique droit > ouvrir un terminal)
 
 4.  Tapez la ligne de commande ci-dessous :
-
-	![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/pyrcc5.png) 	
-
 	<p align="center">
+		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/pyrcc5.png">	
 		Cette ligne va permettre d'ajouter un fichier resources.py et resources.qrc dans le fichier QuickIGN. Ces fichiers sont nécessaires à l'ajout de toutes images.
 	<p>
 	
@@ -19,9 +17,10 @@
 	
 	<p align="center">
 		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/quickign.png">
-	 <p>
-	Cette action peut nécessiter, dans certains cas, un redémarrage du logiciel.
-
+	 
+		Cette action peut nécessiter, dans certains cas, un redémarrage du logiciel.
+	<p>
+	
  6. Cliquez sur le logo apparu dans la barre des outils dockwidget (voir ci-dessous) :
 	![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/logo.png)
 	
