@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/plugins/quickign" >
+        <file>icon.png</file>
+        <file>photo.png</file>
+        <file>cdt.png</file>
+        <file>IGN.png</file>
+        <file>BDOrtho.png</file>
+        <file>C.png</file>
+        <file>Admin.png</file>     
+    </qresource>
+</RCC>
