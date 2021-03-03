@@ -25,10 +25,11 @@
 	<p>
 	
  6. Cliquez sur le logo apparu dans la barre des outils dockwidget (voir ci-dessous) :
-	![](https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/logo.png)
 	
-	La fenêtre WMS va permettre de manipuler les différents fonds de cartes en cochant ou décochant les cases.
-		
+	<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/logo.png">
+	<p align="center">
+		La fenêtre WMS va permettre de manipuler les différents fonds de cartes en cochant ou décochant les cases.
+	<p>
 	<p align="center">
 		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiin.png">
 	<p>
