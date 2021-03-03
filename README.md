@@ -9,7 +9,9 @@
 
 4.  Tapez la ligne de commande ci-dessous :
 	<p align="center">
-		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/pyrcc5.png">	
+		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/pyrcc5.png">
+	<p>
+	<p align="center">
 		Cette ligne va permettre d'ajouter un fichier resources.py et resources.qrc dans le fichier QuickIGN. Ces fichiers sont nécessaires à l'ajout de toutes images.
 	<p>
 	
@@ -17,7 +19,8 @@
 	
 	<p align="center">
 		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/quickign.png">
-	 
+	<p>
+	<p align="center">
 		Cette action peut nécessiter, dans certains cas, un redémarrage du logiciel.
 	<p>
 	
