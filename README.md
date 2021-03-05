@@ -33,7 +33,22 @@
 	<p align="center">
 		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiin.png">
 	<p>
-		La fenêtre Couche Vecteur va permettre de manipuler les couches de la BDTopo d'un département que l'utilisateur a, au préalable, téléchargé sur le site de l'IGN. Pour obtenir ces couches de vecteurs, le Plugin nécessite d'avoir le chemin indiquant l'emplacement de la BDTopo dans l'ordinateur.
+		La fenêtre Couche Vecteur va permettre de manipuler les couches de la BDTopo d'un département que l'utilisateur a, au préalable, <font color="red"> téléchargé sur le site de l'IGN</font>. Pour obtenir ces couches de vecteurs, le Plugin nécessite d'avoir le chemin indiquant l'emplacement de la BDTopo dans l'ordinateur.
+	<p align="center">	
+		[Site de téléchargement BDTopo (IGN)](https://geoservices.ign.fr/documentation/diffusion/telechargement-donnees-libres.html)
 	<p align="center">
 		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiiin*.png">
 	<p>
+
+7. Ouvrir le dossier BDTopo.
+	Exemple : ouvrir BDTOPO_3-0_TOUSTHEMES_SHP_LAMB93_D076_2020-12-1 > BDTOPO > 1_DONNEES_LIVRAISON_2021-01-00019 > BDT_3-0_SHP_LAMB93_D076-ED2020-12-15 > HYDROGRAPHIE
+
+8. Clic droit sur l'un des dossier thème > propiétés > copier l'adresse dossier parent  
+	Exemple : /home/formation/Documents/BDTOPO_3-0_TOUSTHEMES_SHP_LAMB93_D076_2020-12-15/BDTOPO/1_DONNEES_LIVRAISON_2021-01-00019/BDT_3-0_SHP_LAMB93_D076-ED2020-12-15/HYDROGRAPHIE
+
+9. Coller l'adresse du dossier parent dans la case blanche, Valider ! 
+	
+	<p align="center">
+	<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/chemintxtedit.png">
+	<p>
+	

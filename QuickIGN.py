@@ -240,7 +240,7 @@ class QuickIGN:
             # Mise en page de l'interface du Plugin :
             self.dockwidget.pushButton.setStyleSheet("color : #6CE152")
             
-            #Connection des flux accéssible par l'IGN aux checkbox : 
+            #Connection des flux accessible par l'IGN aux checkbox : 
             self.dockwidget.Boxphoto.clicked.connect(self.affichePhotoAerienne)
             self.dockwidget.Boxplani.clicked.connect(self.affichePlaniIGN)
             self.dockwidget.Boxcadastre.clicked.connect(self.afficheCadastre)
@@ -273,46 +273,59 @@ class QuickIGN:
     def chemin(self):
         self.url = self.dockwidget.lineEdit.text()
         
-            #On efface la couche "Emprise du département" si elle existe
+        #On efface la couche "Emprise du département" si elle existe
         if self.layer != None:
             QgsProject.instance().removeMapLayer(self.layer)
-            #On créer la couche "Emprise du département"    
+        
+        #On créer la couche "Emprise du département"    
         self.layer = QgsVectorLayer(self.url + '/ADMINISTRATIF/DEPARTEMENT.shp', 'Emprise du département', 'ogr')
-            #On l'associe à l'emprise de la prjection
+          
+        #On l'associe à l'emprise de la prjection
         canvas = QgsMapCanvas()
         canvas.setExtent(self.layer.extent())
-            #On l'ajoute au caneva
+        
+        #On l'ajoute au caneva
         QgsProject.instance().addMapLayer(self.layer)
-            #On défini la transparence de la couche
+        
+        #On défini la transparence de la couche
         Layer = {'color': 'rgba(255,255,255,0.5)', 'size':'1', 'color_border' : 'rgba(255,255,255,0,5)', 'width_border': '0'}
         L = QgsFillSymbol.createSimple(Layer)
-            #On ajoute les caractéristiques symbologiques à la couche
+        
+        #On ajoute les caractéristiques symbologiques à la couche
         self.layer.setRenderer(QgsSingleSymbolRenderer(L))
-            #On zoom sur la couche "Emprise du département"
+        
+        #On zoom sur la couche "Emprise du département"
         self.iface.setActiveLayer(self.layer)
         self.iface.zoomToActiveLayer()
 
 
     
-    #Fonctions permattant d'aller chercher les différents flux WFS accessible sur le site de l'IGN    
+    #Fonction permattant d'aller chercher les différents flux WMS et WMTS accessible sur le site de l'IGN    
     def affichePhotoAerienne(self):
         print('test')
+        #Si la Box "Photographie aérienne" est cochée :   
         if self.dockwidget.Boxphoto.isChecked():
             print('deja')
+            #On relie la fonction a un flux spécifique, ici le flux photographie aérienne
             url = 'contextualWMSLegend=0&crs=EPSG:3857&dpiMode=7&featureCount=10&format=image/jpeg&'
             url = url + 'layers=ORTHOIMAGERY.ORTHOPHOTOS&styles=normal&tileMatrixSet=PM'
             wms_url = url + '&url=http://wxs.ign.fr/choisirgeoportail/wmts?SERVICE%3DWMTS%26VERSION%3D1.0.0%26REQUEST%3DGetCapabilities'
             rlayer = QgsRasterLayer(wms_url, 'Photographie', 'wms')
             QgsProject.instance().addMapLayer(rlayer)
             print (rlayer)
+        
+        #A l'inverse si elle est décochée :  
         else:
             print('else')
             for fond in QgsProject.instance().mapLayers().values():
                 if fond.name() == "Photographie":
                     rlayer = fond
             print(rlayer.name())
+            #On supprime la couche   
             QgsProject.instance().removeMapLayer(rlayer)
             self.canvas.refresh()
+            
+            #On réitère cette opération pour les quatres autres flux WMS (Plan IGN, Cadastre, BDOrtho, Adminexpress)
             
     def affichePlaniIGN(self):
         print('test')
@@ -393,13 +406,20 @@ class QuickIGN:
             self.canvas.refresh()
 
 
+
+    
+    #Fonction permattant d'aller chercher les différentes couches vecteurs accessibles sur le site de l'IGN
     def ouvAdministratif(self):
-        #
+        #Si la Box "Administratif" est cochée :
         if self.dockwidget.checkBoxAdministratif.isChecked():
-            #
+            #Si la couche "REGION.shp" existe:
             if path.exists(self.url + '/ADMINISTRATIF/REGION.shp'):
+                #Attribution du nom "layer1_1" à la couche "REGION.shp"
                 self.layer1_1 = QgsVectorLayer(self.url + '/ADMINISTRATIF/REGION.shp', 'Region', 'ogr')
+                #Ajouter cette couche dans QGis:
                 QgsProject.instance().addMapLayer(self.layer1_1)
+                
+            #On réitère cette opération pour les autres couches situées dans le dossier administratif 
             if path.exists(self.url + '/ADMINISTRATIF/COLLECTIVITE_TERRITORIALE.shp'):
                 self.layer1_2 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COLLECTIVITE_TERRITORIALE.shp', 'Collectivite territoriale', 'ogr')
                 QgsProject.instance().addMapLayer(self.layer1_2)
@@ -424,14 +444,17 @@ class QuickIGN:
             if path.exists(self.url + '/ADMINISTRATIF/ARRONDISSEMENT_MUNICIPAL.shp'):
                 self.layer1_9 = QgsVectorLayer(self.url + '/ADMINISTRATIF/ARRONDISSEMENT_MUNICIPAL.shp', 'Arrondissement municipal', 'ogr')
                 QgsProject.instance().addMapLayer(self.layer1_9)
-            #
+            
+            #Application de la Symbologie de la fonction "SymboAdmin"
             self.SymboAdmi()
-            #
-           
+    
+        #Si les box sont décochées :  
         else:
-            #
+            #Si "layer1_1" est affiché sur QGIS 
             if hasattr(self, 'layer1_1'):
+                # On supprime cette couche dans la légence
                 QgsProject.instance().removeMapLayer(self.layer1_1)
+            #Même procédé pour les autres couches
             if hasattr(self, 'layer1_2'):
                 QgsProject.instance().removeMapLayer(self.layer1_2)
             if hasattr(self, 'layer1_3'):
@@ -448,13 +471,19 @@ class QuickIGN:
                 QgsProject.instance().removeMapLayer(self.layer1_8)
             if hasattr(self, 'layer1_9'):
                 QgsProject.instance().removeMapLayer(self.layer1_9)
-            #
+            
+            #Permet de rafraîchir le canevas 
             self.canvas.refresh()
-           
+    
+    
+    #Fonction permettant d'appliquer une symbologie à différentes couches, ici la symbologie concerne le couches situées dans le dossier "Admninistratif"       
     def SymboAdmi(self):  
-        #
+        #Création d'une symbologie pour un point 
         propsA = {'color': '#F6CECE', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
+        #Permet d'appliquer propsA sur QGis          
         A = QgsFillSymbol.createSimple(propsA)
+        
+        #Même procédé pour ces 8 points
         propsB = {'color': '#F5A9A9', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         B = QgsFillSymbol.createSimple(propsB)
         propsC = {'color': '#F78181', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
@@ -471,9 +500,12 @@ class QuickIGN:
         H = QgsFillSymbol.createSimple(propsH)
         propsI = {'color': 'rgba(255,255,255,0.5)', 'size':'1', 'color_border' : '#B40404', 'width_border': '1'}
         I = QgsFillSymbol.createSimple(propsI)
-        #
+        
+        #Si la couche layer1_1 est présente sur le canevas 
         if hasattr(self, 'layer1_1'):
+            #Permet de connecter le layer1_1 à sa symbologie (A)
             self.layer1_1.setRenderer(QgsSingleSymbolRenderer(A))  
+            #Permet de recharger la symbologie 
             self.iface.layerTreeView().refreshLayerSymbology(self.layer1_1.id())
         if hasattr(self, 'layer1_2'):
             self.layer1_2.setRenderer(QgsSingleSymbolRenderer(B))
@@ -501,25 +533,20 @@ class QuickIGN:
             self.iface.layerTreeView().refreshLayerSymbology(self.layer1_9.id())
  
     def ouvAdresse(self):
-        #
         if self.dockwidget.checkBoxAdresse.isChecked():
-            #
             if path.exists(self.url + '/ADRESSES/VOIE_NOMMEE.shp'):
                 self.layer2_1 = QgsVectorLayer(self.url + "/ADRESSES/VOIE_NOMMEE.shp", 'Voie nomme', 'ogr')
                 QgsProject.instance().addMapLayer(self.layer2_1)
             if path.exists(self.url + '/ADRESSES/ADRESSE.shp'):
                 self.layer2_2 = QgsVectorLayer(self.url + "/ADRESSES/ADRESSE.shp", 'Adresse', 'ogr')
                 QgsProject.instance().addMapLayer(self.layer2_2)
-            #
             self.SymboAdresse()
 
         else:
-            #
             if hasattr(self, 'layer2_1'):
                 QgsProject.instance().removeMapLayer(self.layer2_1)
             if hasattr(self, 'layer2_2'):
                 QgsProject.instance().removeMapLayer(self.layer2_2)
-            #
             self.canvas.refresh()
            
     def SymboAdresse(self):
