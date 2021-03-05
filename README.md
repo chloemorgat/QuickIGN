@@ -1,7 +1,9 @@
 
 <h1> QUICKIGN </h1>
 
-1. Télécharger le Plugin QuickIGN
+<strong> Attention cette documentation concerne simplement une utilisation sous UBUNTU </strong>
+
+1. Télécharger le Plugin QuickIGN :  Code > Download ZIP
 
 2. Ranger ce Plugin dans le répertoire : /home/formation/.local/share/QGIS/QGIS3/profiles/default/python/plugins
 
