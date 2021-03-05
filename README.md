@@ -34,7 +34,7 @@
 		<img src="https://raw.githubusercontent.com/chloemorgat/QuickIGN/main/Image/plugiin.png">
 	<p>
 	
-	La fenêtre Couche Vecteur va permettre de manipuler les couches de la BDTopo d'un département que l'utilisateur a, au préalable, <span style= "color: red"> téléchargé sur le site de l'IGN </span>. Pour obtenir ces couches de vecteurs, le Plugin nécessite d'avoir le chemin indiquant l'emplacement de la BDTopo dans l'ordinateur. 
+	La fenêtre Couche Vecteur va permettre de manipuler les couches de la BDTopo d'un département que l'utilisateur a, au préalable, <em style= "color: red"> téléchargé sur le site de l'IGN </em>. Pour obtenir ces couches de vecteurs, le Plugin nécessite d'avoir le chemin indiquant l'emplacement de la BDTopo dans l'ordinateur. 
 	<p align="center">	
 	<a href= "https://geoservices.ign.fr/documentation/diffusion/telechargement-donnees-libres.html"> Site de téléchargement BDTopo (IGN) </a>
 	<p>
