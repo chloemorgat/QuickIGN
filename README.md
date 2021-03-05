@@ -44,10 +44,10 @@
 	<p>
 
 7. Ouvrir le dossier BDTopo.
-	Exemple : ouvrir BDTOPO_3-0_TOUSTHEMES_SHP_LAMB93_D076_2020-12-1 > BDTOPO > 1_DONNEES_LIVRAISON_2021-01-00019 > BDT_3-0_SHP_LAMB93_D076-ED2020-12-15 > HYDROGRAPHIE
+	<em> Exemple : </em> Ouvrir BDTOPO_3-0_TOUSTHEMES_SHP_LAMB93_D076_2020-12-1 > BDTOPO > 1_DONNEES_LIVRAISON_2021-01-00019 > BDT_3-0_SHP_LAMB93_D076-ED2020-12-15 
 
-8. Clic droit sur l'un des dossier thème > propiétés > copier l'adresse dossier parent  
-	Exemple : /home/formation/Documents/BDTOPO_3-0_TOUSTHEMES_SHP_LAMB93_D076_2020-12-15/BDTOPO/1_DONNEES_LIVRAISON_2021-01-00019/BDT_3-0_SHP_LAMB93_D076-ED2020-12-15/HYDROGRAPHIE
+8. Clic droit sur l'un des dossiers thème > propiétés > copier l'adresse dossier parent  
+	<em> Exemple : </em> /home/formation/Documents/BDTOPO_3-0_TOUSTHEMES_SHP_LAMB93_D076_2020-12-15/BDTOPO/1_DONNEES_LIVRAISON_2021-01-00019/BDT_3-0_SHP_LAMB93_D076-ED2020-12-15/HYDROGRAPHIE
 
 9. Coller l'adresse du dossier parent dans la case blanche, Valider ! 
 	
