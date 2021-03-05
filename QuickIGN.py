@@ -24,28 +24,30 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-from qgis.core import QgsRasterLayer, QgsProject, QgsVectorLayer
-from qgis.utils import iface
-
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsProject
 
 from PyQt5.QtGui import QColor, QFont
 from qgis.core import QgsFillSymbol, QgsSingleSymbolRenderer, QgsLineSymbol
 from qgis.core import QgsTextFormat, QgsTextBufferSettings, QgsVectorLayerSimpleLabeling
 from qgis.core import QgsPalLayerSettings
 from qgis.core import QgsMarkerSymbol
+from qgis.gui import QgsMapCanvas
+import os.path
+from os import path
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 
-
 # Import the code for the DockWidget
 from .QuickIGN_dockwidget import QuickIGNDockWidget
-import os.path
+import matplotlib as pyplot
 
 
 class QuickIGN:
     """QGIS Plugin Implementation."""
-
+    
+    layer = None
+    
     def __init__(self, iface):
         """Constructor.
 
@@ -270,6 +272,27 @@ class QuickIGN:
     #Fonction permettant de récupérer le fichier BDTopo
     def chemin(self):
         self.url = self.dockwidget.lineEdit.text()
+        
+            #On efface la couche "Emprise du département" si elle existe
+        if self.layer != None:
+            QgsProject.instance().removeMapLayer(self.layer)
+            #On créer la couche "Emprise du département"    
+        self.layer = QgsVectorLayer(self.url + '/ADMINISTRATIF/DEPARTEMENT.shp', 'Emprise du département', 'ogr')
+            #On l'associe à l'emprise de la prjection
+        canvas = QgsMapCanvas()
+        canvas.setExtent(self.layer.extent())
+            #On l'ajoute au caneva
+        QgsProject.instance().addMapLayer(self.layer)
+            #On défini la transparence de la couche
+        Layer = {'color': 'rgba(255,255,255,0.5)', 'size':'1', 'color_border' : 'rgba(255,255,255,0,5)', 'width_border': '0'}
+        L = QgsFillSymbol.createSimple(Layer)
+            #On ajoute les caractéristiques symbologiques à la couche
+        self.layer.setRenderer(QgsSingleSymbolRenderer(L))
+            #On zoom sur la couche "Emprise du département"
+        self.iface.setActiveLayer(self.layer)
+        self.iface.zoomToActiveLayer()
+
+
     
     #Fonctions permattant d'aller chercher les différents flux WFS accessible sur le site de l'IGN    
     def affichePhotoAerienne(self):
@@ -374,40 +397,57 @@ class QuickIGN:
         #
         if self.dockwidget.checkBoxAdministratif.isChecked():
             #
-            self.layer1_1 = QgsVectorLayer(self.url + '/ADMINISTRATIF/REGION.shp', 'Region', 'ogr')
-            self.layer1_2 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COLLECTIVITE_TERRITORIALE.shp', 'Collectivite territoriale', 'ogr')
-            self.layer1_3 = QgsVectorLayer(self.url + '/ADMINISTRATIF/DEPARTEMENT.shp', 'Departement', 'ogr')
-            self.layer1_4 = QgsVectorLayer(self.url + '/ADMINISTRATIF/ARRONDISSEMENT.shp', 'Arrondissement', 'ogr')
-            self.layer1_5 = QgsVectorLayer(self.url + '/ADMINISTRATIF/EPCI.shp', 'ECPI', 'ogr')
-            self.layer1_6 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COMMUNE.shp', 'Commune', 'ogr')
-            self.layer1_7 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COMMUNE_ASSOCIEE_OU_DELEGUEE.shp', 'Commune associee', 'ogr')
-            self.layer1_8 = QgsVectorLayer(self.url + '/ADMINISTRATIF/CONDOMINIUM.shp', 'Condominium', 'ogr')
-            self.layer1_9 = QgsVectorLayer(self.url + '/ADMINISTRATIF/ARRONDISSEMENT_MUNICIPAL.shp', 'Arrondissement municipal', 'ogr')
+            if path.exists(self.url + '/ADMINISTRATIF/REGION.shp'):
+                self.layer1_1 = QgsVectorLayer(self.url + '/ADMINISTRATIF/REGION.shp', 'Region', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_1)
+            if path.exists(self.url + '/ADMINISTRATIF/COLLECTIVITE_TERRITORIALE.shp'):
+                self.layer1_2 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COLLECTIVITE_TERRITORIALE.shp', 'Collectivite territoriale', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_2)
+            if path.exists(self.url + '/ADMINISTRATIF/DEPARTEMENT.shp'):
+                self.layer1_3 = QgsVectorLayer(self.url + '/ADMINISTRATIF/DEPARTEMENT.shp', 'Departement', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_3)
+            if path.exists(self.url + '/ADMINISTRATIF/ARRONDISSEMENT.shp'):
+                self.layer1_4 = QgsVectorLayer(self.url + '/ADMINISTRATIF/ARRONDISSEMENT.shp', 'Arrondissement', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_4)
+            if path.exists(self.url + '/ADMINISTRATIF/EPCI.shp'):
+                self.layer1_5 = QgsVectorLayer(self.url + '/ADMINISTRATIF/EPCI.shp', 'ECPI', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_5)
+            if path.exists(self.url + '/ADMINISTRATIF/COMMUNE.shp'):
+                self.layer1_6 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COMMUNE.shp', 'Commune', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_6)
+            if path.exists(self.url + '/ADMINISTRATIF/COMMUNE_ASSOCIEE_OU_DELEGUEE.shp'):
+                self.layer1_7 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COMMUNE_ASSOCIEE_OU_DELEGUEE.shp', 'Commune associee', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_7)
+            if path.exists(self.url + '/ADMINISTRATIF/CONDOMINIUM.shp'):
+                self.layer1_8 = QgsVectorLayer(self.url + '/ADMINISTRATIF/CONDOMINIUM.shp', 'Condominium', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_8)
+            if path.exists(self.url + '/ADMINISTRATIF/ARRONDISSEMENT_MUNICIPAL.shp'):
+                self.layer1_9 = QgsVectorLayer(self.url + '/ADMINISTRATIF/ARRONDISSEMENT_MUNICIPAL.shp', 'Arrondissement municipal', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer1_9)
             #
             self.SymboAdmi()
             #
-            QgsProject.instance().addMapLayer(self.layer1_1)
-            QgsProject.instance().addMapLayer(self.layer1_2)
-            QgsProject.instance().addMapLayer(self.layer1_3)
-            QgsProject.instance().addMapLayer(self.layer1_4)
-            QgsProject.instance().addMapLayer(self.layer1_5)
-            QgsProject.instance().addMapLayer(self.layer1_6)
-            QgsProject.instance().addMapLayer(self.layer1_7)
-            QgsProject.instance().addMapLayer(self.layer1_8)
-            QgsProject.instance().addMapLayer(self.layer1_9)
-             
            
         else:
             #
-            QgsProject.instance().removeMapLayer(self.layer1_1)
-            QgsProject.instance().removeMapLayer(self.layer1_2)
-            QgsProject.instance().removeMapLayer(self.layer1_3)
-            QgsProject.instance().removeMapLayer(self.layer1_4)
-            QgsProject.instance().removeMapLayer(self.layer1_5)
-            QgsProject.instance().removeMapLayer(self.layer1_6)
-            QgsProject.instance().removeMapLayer(self.layer1_7)
-            QgsProject.instance().removeMapLayer(self.layer1_8)
-            QgsProject.instance().removeMapLayer(self.layer1_9)
+            if hasattr(self, 'layer1_1'):
+                QgsProject.instance().removeMapLayer(self.layer1_1)
+            if hasattr(self, 'layer1_2'):
+                QgsProject.instance().removeMapLayer(self.layer1_2)
+            if hasattr(self, 'layer1_3'):
+                QgsProject.instance().removeMapLayer(self.layer1_3)
+            if hasattr(self, 'layer1_4'):
+                QgsProject.instance().removeMapLayer(self.layer1_4)
+            if hasattr(self, 'layer1_5'):
+                QgsProject.instance().removeMapLayer(self.layer1_5)
+            if hasattr(self, 'layer1_6'):
+                QgsProject.instance().removeMapLayer(self.layer1_6)
+            if hasattr(self, 'layer1_7'):
+                QgsProject.instance().removeMapLayer(self.layer1_7)
+            if hasattr(self, 'layer1_8'):
+                QgsProject.instance().removeMapLayer(self.layer1_8)
+            if hasattr(self, 'layer1_9'):
+                QgsProject.instance().removeMapLayer(self.layer1_9)
             #
             self.canvas.refresh()
            
@@ -427,95 +467,141 @@ class QuickIGN:
         F = QgsFillSymbol.createSimple(propsF)
         propsG = {'color': '#B40404', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         G = QgsFillSymbol.createSimple(propsG)
-#        propsH = {'color': '#B40404', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
-#        H = QgsFillSymbol.createSimple(propsH)
-#        propsI = {'color': '#B40404', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
-#        I = QgsFillSymbol.createSimple(propsI)
+        propsH = {'color': 'rgba(255,255,255,0.5)', 'size':'1', 'color_border' : '#FE642E', 'width_border': '1'}
+        H = QgsFillSymbol.createSimple(propsH)
+        propsI = {'color': 'rgba(255,255,255,0.5)', 'size':'1', 'color_border' : '#B40404', 'width_border': '1'}
+        I = QgsFillSymbol.createSimple(propsI)
         #
-        self.layer1_1.setRenderer(QgsSingleSymbolRenderer(A))    
-        self.layer1_2.setRenderer(QgsSingleSymbolRenderer(B))
-        self.layer1_3.setRenderer(QgsSingleSymbolRenderer(C))        
-        self.layer1_4.setRenderer(QgsSingleSymbolRenderer(D))        
-        self.layer1_5.setRenderer(QgsSingleSymbolRenderer(E))        
-        self.layer1_6.setRenderer(QgsSingleSymbolRenderer(F))        
-        self.layer1_7.setRenderer(QgsSingleSymbolRenderer(G))
-        self.layer1_7.setRenderer(QgsSingleSymbolRenderer(H))
-        self.layer1_7.setRenderer(QgsSingleSymbolRenderer(I))
-     
-
+        if hasattr(self, 'layer1_1'):
+            self.layer1_1.setRenderer(QgsSingleSymbolRenderer(A))  
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_1.id())
+        if hasattr(self, 'layer1_2'):
+            self.layer1_2.setRenderer(QgsSingleSymbolRenderer(B))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_2.id())
+        if hasattr(self, 'layer1_3'):
+            self.layer1_3.setRenderer(QgsSingleSymbolRenderer(C))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_3.id())
+        if hasattr(self, 'layer1_4'):
+            self.layer1_4.setRenderer(QgsSingleSymbolRenderer(D))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_4.id())
+        if hasattr(self, 'layer1_5'):
+            self.layer1_5.setRenderer(QgsSingleSymbolRenderer(E))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_5.id())
+        if hasattr(self, 'layer1_6'):
+            self.layer1_6.setRenderer(QgsSingleSymbolRenderer(F))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_6.id())
+        if hasattr(self, 'layer1_7'):
+            self.layer1_7.setRenderer(QgsSingleSymbolRenderer(G))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_7.id())
+        if hasattr(self, 'layer1_8'):
+            self.layer1_8.setRenderer(QgsSingleSymbolRenderer(H))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_8.id())
+        if hasattr(self, 'layer1_9'):
+            self.layer1_9.setRenderer(QgsSingleSymbolRenderer(I))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer1_9.id())
+ 
     def ouvAdresse(self):
         #
         if self.dockwidget.checkBoxAdresse.isChecked():
             #
-            self.layer2_1 = QgsVectorLayer(self.url + "/ADRESSES/VOIE_NOMMEE.shp", 'Voie nomme', 'ogr')
-            self.layer2_2 = QgsVectorLayer(self.url + "/ADRESSES/ADRESSE.shp", 'Adresse', 'ogr')
+            if path.exists(self.url + '/ADRESSES/VOIE_NOMMEE.shp'):
+                self.layer2_1 = QgsVectorLayer(self.url + "/ADRESSES/VOIE_NOMMEE.shp", 'Voie nomme', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer2_1)
+            if path.exists(self.url + '/ADRESSES/ADRESSE.shp'):
+                self.layer2_2 = QgsVectorLayer(self.url + "/ADRESSES/ADRESSE.shp", 'Adresse', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer2_2)
             #
             self.SymboAdresse()
-            #
-            QgsProject.instance().addMapLayer(self.layer2_1)
-            QgsProject.instance().addMapLayer(self.layer2_2)
-           
+
         else:
             #
-            QgsProject.instance().removeMapLayer(self.layer2_1)
-            QgsProject.instance().removeMapLayer(self.layer2_2)
+            if hasattr(self, 'layer2_1'):
+                QgsProject.instance().removeMapLayer(self.layer2_1)
+            if hasattr(self, 'layer2_2'):
+                QgsProject.instance().removeMapLayer(self.layer2_2)
             #
             self.canvas.refresh()
-
+           
     def SymboAdresse(self):
         #
         lineA = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#FF8000'})
         #
-        self.layer2_1.renderer().setSymbol(lineA)
+        if hasattr(self, 'layer2_1'):
+            self.layer2_1.renderer().setSymbol(lineA)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer2_1.id())
        
         #
         symbolB = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#E482ED', 'color_border' : '0,0,0', 'width_border': '0,3'})
         #
-        self.layer2_2.renderer().setSymbol(symbolB)            
+        if hasattr(self, 'layer2_2'):
+            self.layer2_2.renderer().setSymbol(symbolB)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer2_2.id())
            
     def ouvBati(self):
         #
         if self.dockwidget.checkBoxBati.isChecked() :
             #
-            self.layer3_1 = QgsVectorLayer(self.url + "/BATI/BATIMENT.shp", 'Batiment ', 'ogr')            
-            self.layer3_2 = QgsVectorLayer(self.url + "/BATI/CIMETIERE.shp", "Cimetière", 'ogr')          
-            self.layer3_3 = QgsVectorLayer(self.url + "/BATI/RESERVOIR.shp", 'Réservoir ', 'ogr')            
-            self.layer3_4 = QgsVectorLayer(self.url + "/BATI/TERRAIN_DE_SPORT.shp", 'Terrain de sport ', 'ogr')            
-            self.layer3_5 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_SURFACIQUE.shp", "Construction surfacique", 'ogr')                
-            self.layer3_6 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_LINEAIRE.shp", 'Construction Linéaire', 'ogr')            
-            self.layer3_7 = QgsVectorLayer(self.url + "/BATI/LIGNE_OROGRAPHIQUE.shp", 'Ligne Orographique', 'ogr')            
-            self.layer3_8 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_PONCTUELLE.shp", 'Construction Ponctuelle', 'ogr')            
-            self.layer3_9 = QgsVectorLayer(self.url + "/BATI/PYLONE.shp", 'Pylone', 'ogr')            
-            self.layer3_10 = QgsVectorLayer(self.url + "/BATI/TOPONYMIE_BATI.shp", 'Toponymie bati ', 'ogr')            
-            self.layer3_11 = QgsVectorLayer(self.url + "/BATI/DETAIL_HYDROGRAPHIQUE.shp", 'Détails', 'ogr')
+            if path.exists(self.url + '/BATI/BATIMENT.shp'):
+                self.layer3_1 = QgsVectorLayer(self.url + "/BATI/BATIMENT.shp", 'Batiment ', 'ogr')  
+                QgsProject.instance().addMapLayer(self.layer3_1)
+            if path.exists(self.url + '/BATI/CIMETIERE.shp'):
+                self.layer3_2 = QgsVectorLayer(self.url + "/BATI/CIMETIERE.shp", "Cimetière", 'ogr')  
+                QgsProject.instance().addMapLayer(self.layer3_2)
+            if path.exists(self.url + '/BATI/RESERVOIR.shp'):
+                self.layer3_3 = QgsVectorLayer(self.url + "/BATI/RESERVOIR.shp", 'Réservoir ', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer3_3)
+            if path.exists(self.url + '/BATI/TERRAIN_DE_SPORT.shp'):
+                self.layer3_4 = QgsVectorLayer(self.url + "/BATI/TERRAIN_DE_SPORT.shp", 'Terrain de sport ', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer3_4)
+            if path.exists(self.url + '/BATI/CONSTRUCTION_SURFACIQUE.shp'):
+                self.layer3_5 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_SURFACIQUE.shp", "Construction surfacique", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer3_5)
+            if path.exists(self.url + '/BATI/CONSTRUCTION_LINEAIRE.shp'):            
+                self.layer3_6 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_LINEAIRE.shp", 'Construction Linéaire', 'ogr')  
+                QgsProject.instance().addMapLayer(self.layer3_6)
+            if path.exists(self.url + '/BATI/LIGNE_OROGRAPHIQUE.shp'):
+                self.layer3_7 = QgsVectorLayer(self.url + "/BATI/LIGNE_OROGRAPHIQUE.shp", 'Ligne Orographique', 'ogr')    
+                QgsProject.instance().addMapLayer(self.layer3_7)
+            if path.exists(self.url + '/BATI/CONSTRUCTION_PONCTUELLE.shp'):
+                self.layer3_8 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_PONCTUELLE.shp", 'Construction Ponctuelle', 'ogr')  
+                QgsProject.instance().addMapLayer(self.layer3_8)
+            if path.exists(self.url + '/BATI/PYLONE.shp'):
+                self.layer3_9 = QgsVectorLayer(self.url + "/BATI/PYLONE.shp", 'Pylone', 'ogr')            
+                QgsProject.instance().addMapLayer(self.layer3_9)
+            if path.exists(self.url + '/BATI/TOPONYMIE_BATI.shp'):
+                self.layer3_10 = QgsVectorLayer(self.url + "/BATI/TOPONYMIE_BATI.shp", 'Toponymie bati ', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer3_10)
+            if path.exists(self.url + '/BATI/DETAIL_HYDROGRAPHIQUE.shp'):
+                self.layer3_11 = QgsVectorLayer(self.url + "/BATI/DETAIL_HYDROGRAPHIQUE.shp", 'Détails', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer3_11)
             #
             self.SymboBati()
-            #
-            QgsProject.instance().addMapLayer(self.layer3_1)
-            QgsProject.instance().addMapLayer(self.layer3_2)
-            QgsProject.instance().addMapLayer(self.layer3_3)
-            QgsProject.instance().addMapLayer(self.layer3_4)
-            QgsProject.instance().addMapLayer(self.layer3_5)
-            QgsProject.instance().addMapLayer(self.layer3_6)
-            QgsProject.instance().addMapLayer(self.layer3_7)
-            QgsProject.instance().addMapLayer(self.layer3_8)
-            QgsProject.instance().addMapLayer(self.layer3_9)
-            QgsProject.instance().addMapLayer(self.layer3_10)
-            QgsProject.instance().addMapLayer(self.layer3_11)
+           
            
         else:
             #
-            QgsProject.instance().removeMapLayer(self.layer3_1)
-            QgsProject.instance().removeMapLayer(self.layer3_2)
-            QgsProject.instance().removeMapLayer(self.layer3_3)
-            QgsProject.instance().removeMapLayer(self.layer3_4)
-            QgsProject.instance().removeMapLayer(self.layer3_5)
-            QgsProject.instance().removeMapLayer(self.layer3_6)
-            QgsProject.instance().removeMapLayer(self.layer3_7)
-            QgsProject.instance().removeMapLayer(self.layer3_8)
-            QgsProject.instance().removeMapLayer(self.layer3_9)
-            QgsProject.instance().removeMapLayer(self.layer3_10)
-            QgsProject.instance().removeMapLayer(self.layer3_11)
+            if hasattr(self, 'layer3_1'):
+                QgsProject.instance().removeMapLayer(self.layer3_1)
+            if hasattr(self, 'layer3_2'):
+                QgsProject.instance().removeMapLayer(self.layer3_2)
+            if hasattr(self, 'layer3_3'):
+                QgsProject.instance().removeMapLayer(self.layer3_3)
+            if hasattr(self, 'layer3_4'):
+                QgsProject.instance().removeMapLayer(self.layer3_4)
+            if hasattr(self, 'layer3_5'):
+                QgsProject.instance().removeMapLayer(self.layer3_5)
+            if hasattr(self, 'layer3_6'):
+                QgsProject.instance().removeMapLayer(self.layer3_6)
+            if hasattr(self, 'layer3_7'):
+                QgsProject.instance().removeMapLayer(self.layer3_7)
+            if hasattr(self, 'layer3_8'):
+                QgsProject.instance().removeMapLayer(self.layer3_8)
+            if hasattr(self, 'layer3_9'):
+                QgsProject.instance().removeMapLayer(self.layer3_9)
+            if hasattr(self, 'layer3_10'):
+                QgsProject.instance().removeMapLayer(self.layer3_10)
+            if hasattr(self, 'layer3_11'):
+                QgsProject.instance().removeMapLayer(self.layer3_11)
             #
             self.canvas.refresh()
            
@@ -532,65 +618,111 @@ class QuickIGN:
         propsE = {'color': '#868A08', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         E = QgsFillSymbol.createSimple(propsE)
         #
-        self.layer3_1.setRenderer(QgsSingleSymbolRenderer(A))        
-        self.layer3_2.setRenderer(QgsSingleSymbolRenderer(B))        
-        self.layer3_3.setRenderer(QgsSingleSymbolRenderer(C))        
-        self.layer3_4.setRenderer(QgsSingleSymbolRenderer(D))        
-        self.layer3_5.setRenderer(QgsSingleSymbolRenderer(E))
+        if hasattr(self, 'layer3_1'):
+            self.layer3_1.setRenderer(QgsSingleSymbolRenderer(A))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_1.id())
+        if hasattr(self, 'layer3_2'):
+            self.layer3_2.setRenderer(QgsSingleSymbolRenderer(B))  
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_2.id())
+        if hasattr(self, 'layer3_3'):
+            self.layer3_3.setRenderer(QgsSingleSymbolRenderer(C))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_3.id())
+        if hasattr(self, 'layer3_4'):
+            self.layer3_4.setRenderer(QgsSingleSymbolRenderer(D))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_4.id())
+        if hasattr(self, 'layer3_5'):
+            self.layer3_5.setRenderer(QgsSingleSymbolRenderer(E))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_5.id())
        
         #
         lineF = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#8A0886'})
         lineG = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#868A08'})
         #                                  
-        self.layer3_6.renderer().setSymbol(lineF)        
-        self.layer3_7.renderer().setSymbol(lineG)
+        if hasattr(self, 'layer3_6'):
+            self.layer3_6.renderer().setSymbol(lineF)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_6.id())
+        if hasattr(self, 'layer3_7'):
+            self.layer3_7.renderer().setSymbol(lineG)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_7.id())
        
         #
         symbolH = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FA5882', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolI = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#BDBDBD', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolJ = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#D358F7', 'color_border' : '0,0,0', 'width_border': '0,3'})
+        symbolK = QgsMarkerSymbol.createSimple({'name': 'square', 'color': '#8181F7', 'color_border' : '0,0,0', 'width_border': '0,3'})
         #                                      
-        self.layer3_8.renderer().setSymbol(symbolH)  
-        self.layer3_9.renderer().setSymbol(symbolI)        
-        self.layer3_10.renderer().setSymbol(symbolJ)
+        if hasattr(self, 'layer3_8'):
+            self.layer3_8.renderer().setSymbol(symbolH)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_8.id())
+        if hasattr(self, 'layer3_9'):
+            self.layer3_9.renderer().setSymbol(symbolI)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_9.id())
+        if hasattr(self, 'layer3_10'):
+            self.layer3_10.renderer().setSymbol(symbolJ)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_10.id())
+        if hasattr(self, 'layer3_11'):
+            self.layer3_11.renderer().setSymbol(symbolK)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer3_11.id())
        
     def ouvHydro(self):
         #
         if self.dockwidget.checkBoxHydro.isChecked():
             #
-            self.layer4_1 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/BASSIN_VERSANT_TOPOGRAPHIQUE.shp', 'Bassin Versant', 'ogr')            
-            self.layer4_2 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/SURFACE_HYDROGRAPHIQUE.shp', "Surface hydrographique", 'ogr')          
-            self.layer4_3 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/PLAN_D_EAU.shp', "Plan d'eau", 'ogr')          
-            self.layer4_4 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/COURS_D_EAU.shp', "Courd d'eau", 'ogr')            
-            self.layer4_5 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/LIMITE_TERRE_MER.shp', "Limite terre/mer", 'ogr')            
-            self.layer4_6 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/TRONCON_HYDROGRAPHIQUE.shp', "Troncon hydrograpĥique", 'ogr')            
-            self.layer4_7 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/DETAIL_HYDROGRAPHIQUE.shp', "Détail hydrographique", 'ogr')            
-            self.layer4_8 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/NOEUD_HYDROGRAPHIQUE.shp', "Noeud hydrographique", 'ogr')
-            self.layer4_9 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/TOPONYMIE_HYDROGRAPHIE.shp', "Toponymie hydrographie", 'ogr')
+            if path.exists(self.url + '/HYDROGRAPHIE/BASSIN_VERSANT_TOPOGRAPHIQUE.shp'):
+                self.layer4_1 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/BASSIN_VERSANT_TOPOGRAPHIQUE.shp', 'Bassin Versant', 'ogr')  
+                QgsProject.instance().addMapLayer(self.layer4_1)
+            if path.exists(self.url + '/HYDROGRAPHIE/SURFACE_HYDROGRAPHIQUE.shp'):
+                self.layer4_2 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/SURFACE_HYDROGRAPHIQUE.shp', "Surface hydrographique", 'ogr')  
+                QgsProject.instance().addMapLayer(self.layer4_2)
+            if path.exists(self.url + '/HYDROGRAPHIE/PLAN_D_EAU.shp'):
+                self.layer4_3 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/PLAN_D_EAU.shp', "Plan d'eau", 'ogr')  
+                QgsProject.instance().addMapLayer(self.layer4_3)
+            if path.exists(self.url + '/HYDROGRAPHIE/COURS_D_EAU.shp'):
+                self.layer4_4 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/COURS_D_EAU.shp', "Courd d'eau", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer4_4)
+            if path.exists(self.url + '/HYDROGRAPHIE/LIMITE_TERRE_MER.shp'):
+                self.layer4_5 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/LIMITE_TERRE_MER.shp', "Limite terre/mer", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer4_5)
+            if path.exists(self.url + '/HYDROGRAPHIE/TRONCON_HYDROGRAPHIQUE.shp'):
+                self.layer4_6 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/TRONCON_HYDROGRAPHIQUE.shp', "Troncon hydrograpĥique", 'ogr')  
+                QgsProject.instance().addMapLayer(self.layer4_6)
+            if path.exists(self.url + '/HYDROGRAPHIE/DETAIL_HYDROGRAPHIQUE.shp'):
+                self.layer4_7 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/DETAIL_HYDROGRAPHIQUE.shp', "Détail hydrographique", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer4_7)
+            if path.exists(self.url + '/HYDROGRAPHIE/NOEUD_HYDROGRAPHIQUE.shp'):
+                self.layer4_8 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/NOEUD_HYDROGRAPHIQUE.shp', "Noeud hydrographique", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer4_8)
+            if path.exists(self.url + '/HYDROGRAPHIE/TOPONYMIE_HYDROGRAPHIE.shp'):
+                self.layer4_9 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/TOPONYMIE_HYDROGRAPHIE.shp', "Toponymie hydrographie", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer4_9)
+            if path.exists(self.url + '/HYDROGRAPHIE/ENTITE_DE_TRANSITION.shp'):
+                self.layer4_10 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/ENTITE_DE_TRANSITION.shp', "Entité de transition", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer4_10)
             #
             self.SymboHydro()
-            #
-            QgsProject.instance().addMapLayer(self.layer4_1)
-            QgsProject.instance().addMapLayer(self.layer4_2)
-            QgsProject.instance().addMapLayer(self.layer4_3)
-            QgsProject.instance().addMapLayer(self.layer4_4)
-            QgsProject.instance().addMapLayer(self.layer4_5)
-            QgsProject.instance().addMapLayer(self.layer4_6)
-            QgsProject.instance().addMapLayer(self.layer4_7)
-            QgsProject.instance().addMapLayer(self.layer4_8)
-            QgsProject.instance().addMapLayer(self.layer4_9)
-       
+
         else:
             #
-            QgsProject.instance().removeMapLayer(self.layer4_1)
-            QgsProject.instance().removeMapLayer(self.layer4_2)
-            QgsProject.instance().removeMapLayer(self.layer4_3)
-            QgsProject.instance().removeMapLayer(self.layer4_4)
-            QgsProject.instance().removeMapLayer(self.layer4_5)
-            QgsProject.instance().removeMapLayer(self.layer4_6)
-            QgsProject.instance().removeMapLayer(self.layer4_7)
-            QgsProject.instance().removeMapLayer(self.layer4_8)
-            QgsProject.instance().removeMapLayer(self.layer4_9)
+            if hasattr(self, 'layer4_1'):  
+                QgsProject.instance().removeMapLayer(self.layer4_1)
+            if hasattr(self, 'layer4_2'):  
+                QgsProject.instance().removeMapLayer(self.layer4_2)
+            if hasattr(self, 'layer4_3'):  
+                QgsProject.instance().removeMapLayer(self.layer4_3)
+            if hasattr(self, 'layer4_4'):  
+                QgsProject.instance().removeMapLayer(self.layer4_4)
+            if hasattr(self, 'layer4_5'):  
+                QgsProject.instance().removeMapLayer(self.layer4_5)
+            if hasattr(self, 'layer4_6'):  
+                QgsProject.instance().removeMapLayer(self.layer4_6)
+            if hasattr(self, 'layer4_7'):  
+                QgsProject.instance().removeMapLayer(self.layer4_7)
+            if hasattr(self, 'layer4_8'):  
+                QgsProject.instance().removeMapLayer(self.layer4_8)
+            if hasattr(self, 'layer4_9'):  
+                QgsProject.instance().removeMapLayer(self.layer4_9)
+            if hasattr(self, 'layer4_10'):  
+                QgsProject.instance().removeMapLayer(self.layer4_10)
             #
             self.canvas.refresh()
 
@@ -603,51 +735,81 @@ class QuickIGN:
         propsC = {'color': '#2E64FE', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         C = QgsFillSymbol.createSimple(propsC)
         #
-        self.layer4_1.setRenderer(QgsSingleSymbolRenderer(A))        
-        self.layer4_2.setRenderer(QgsSingleSymbolRenderer(B))        
-        self.layer4_3.setRenderer(QgsSingleSymbolRenderer(C))
+        if hasattr(self, 'layer4_1'):  
+            self.layer4_1.setRenderer(QgsSingleSymbolRenderer(A))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_1.id())
+        if hasattr(self, 'layer4_2'):  
+            self.layer4_2.setRenderer(QgsSingleSymbolRenderer(B))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_2.id())
+        if hasattr(self, 'layer4_3'):  
+            self.layer4_3.setRenderer(QgsSingleSymbolRenderer(C))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_3.id())
        
         #
         lineD = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#23C3F9'})
         lineE = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#002FFB'})
         lineF = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#054291'})
         #                                    
-        self.layer4_4.renderer().setSymbol(lineD)        
-        self.layer4_5.renderer().setSymbol(lineE)        
-        self.layer4_6.renderer().setSymbol(lineF)
+        if hasattr(self, 'layer4_4'):  
+            self.layer4_4.renderer().setSymbol(lineD)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_4.id())
+        if hasattr(self, 'layer4_5'):  
+            self.layer4_5.renderer().setSymbol(lineE)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_5.id())
+        if hasattr(self, 'layer4_6'):  
+            self.layer4_6.renderer().setSymbol(lineF)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_6.id())
        
         #
         symbolG = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#DA81F5', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolH = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#08088A', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolI = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#084B8A', 'color_border' : '0,0,0', 'width_border': '0,3'})
-        #                                        
-        self.layer4_7.renderer().setSymbol(symbolG)        
-        self.layer4_8.renderer().setSymbol(symbolH)        
-        self.layer4_9.renderer().setSymbol(symbolI)
+        symbolJ = QgsMarkerSymbol.createSimple({'name': 'square', 'color': '#084B8A', 'color_border' : '0,0,0', 'width_border': '0,3'})                                        
+        #                            
+        if hasattr(self, 'layer4_7'):            
+            self.layer4_7.renderer().setSymbol(symbolG)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_7.id())
+        if hasattr(self, 'layer4_8'):  
+            self.layer4_8.renderer().setSymbol(symbolH)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_8.id())
+        if hasattr(self, 'layer4_9'):  
+            self.layer4_9.renderer().setSymbol(symbolI)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_9.id())
+        if hasattr(self, 'layer4_10'):  
+            self.layer4_10.renderer().setSymbol(symbolJ)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer4_10.id())
 
 
     def ouvLieuNomme(self):
         #
         if self.dockwidget.checkBoxLieuNomme.isChecked():
             #
-            self.layer5_1 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/ZONE_D_HABITATION.shp', "Zone d'habitation", 'ogr')
-            self.layer5_2 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/TOPONYMIE_LIEUX_NOMMES.shp', 'Toponyme lieux nommés', 'ogr')
-            self.layer5_3 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/DETAIL_OROGRAPHIQUE.shp', 'Détail orographique', 'ogr')
-            self.layer5_4 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/LIEU_DIT_NON_HABITE.shp', 'Lieu dit non habité', 'ogr')
+            if path.exists(self.url + '/LIEUX_NOMMES/ZONE_D_HABITATION.shp'):
+                self.layer5_1 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/ZONE_D_HABITATION.shp', "Zone d'habitation", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer5_1)
+            if path.exists(self.url + '/LIEUX_NOMMES/TOPONYMIE_LIEUX_NOMMES.shp'):
+                self.layer5_2 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/TOPONYMIE_LIEUX_NOMMES.shp', 'Toponyme lieux nommés', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer5_2)
+            if path.exists(self.url + '/LIEUX_NOMMES/DETAIL_OROGRAPHIQUE.shp'):
+                self.layer5_3 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/DETAIL_OROGRAPHIQUE.shp', 'Détail orographique', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer5_3)
+            if path.exists(self.url + '/LIEUX_NOMMES/LIEU_DIT_NON_HABITE.shp'):
+                self.layer5_4 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/LIEU_DIT_NON_HABITE.shp', 'Lieu dit non habité', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer5_4)
             #
             self.SymboLieuNomme()
-            #
-            QgsProject.instance().addMapLayer(self.layer5_1)
-            QgsProject.instance().addMapLayer(self.layer5_2)
-            QgsProject.instance().addMapLayer(self.layer5_3)
-            QgsProject.instance().addMapLayer(self.layer5_4)
+           
            
         else:
             #
-            QgsProject.instance().removeMapLayer(self.layer5_1)
-            QgsProject.instance().removeMapLayer(self.layer5_2)
-            QgsProject.instance().removeMapLayer(self.layer5_3)
-            QgsProject.instance().removeMapLayer(self.layer5_4)
+            if hasattr(self, 'layer5_1'):
+                QgsProject.instance().removeMapLayer(self.layer5_1)
+            if hasattr(self, 'layer5_2'):
+                QgsProject.instance().removeMapLayer(self.layer5_2)
+            if hasattr(self, 'layer5_3'):
+                QgsProject.instance().removeMapLayer(self.layer5_3)
+            if hasattr(self, 'layer5_4'):
+                QgsProject.instance().removeMapLayer(self.layer5_4)
             #
             self.canvas.refresh()
 
@@ -656,16 +818,24 @@ class QuickIGN:
         propsA = {'color': '#FF4000', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         A = QgsFillSymbol.createSimple(propsA)
         #
-        self.layer5_1.setRenderer(QgsSingleSymbolRenderer(A))
+        if hasattr(self, 'layer5_1'):
+            self.layer5_1.setRenderer(QgsSingleSymbolRenderer(A))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer5_1.id())
        
         #
         symbolB = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FFBF00', 'color_border' : '0,0,0', 'width_border': '0.3'})
         symbolC = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#BFFF00', 'color_border' : '0,0,0', 'width_border': '0.3'})
         symbolD = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#00FFFF', 'color_border' : '0,0,0', 'width_border': '0.3'})
-        #                                        
-        self.layer5_2.renderer().setSymbol(symbolB)
-        self.layer5_3.renderer().setSymbol(symbolC)        
-        self.layer5_4.renderer().setSymbol(symbolD)
+        #  
+        if hasattr(self, 'layer5_2'):                                    
+            self.layer5_2.renderer().setSymbol(symbolB)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer5_2.id())
+        if hasattr(self, 'layer5_3'):
+            self.layer5_3.renderer().setSymbol(symbolC)  
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer5_3.id())
+        if hasattr(self, 'layer5_4'):
+            self.layer5_4.renderer().setSymbol(symbolD)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer5_4.id())
        
        
 
@@ -673,18 +843,27 @@ class QuickIGN:
         #
         if self.dockwidget.checkBoxOccupationDuSol.isChecked():
             #
-            self.layer6_1 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/ZONE_D_ESTRAN.shp', "Zonre d'estran", 'ogr')
-            self.layer6_2 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/ZONE_DE_VEGETATION.shp', 'Zone de vegetation', 'ogr')
+            if path.exists(self.url + '/OCCUPATION_DU_SOL/ZONE_D_ESTRAN.shp'):
+                self.layer6_1 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/ZONE_D_ESTRAN.shp', "Zonre d'estran", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer6_1)
+            if path.exists(self.url + '/OCCUPATION_DU_SOL/ZONE_DE_VEGETATION.shp'):
+                self.layer6_2 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/ZONE_DE_VEGETATION.shp', 'Zone de vegetation', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer6_2)
+            if path.exists(self.url + '/OCCUPATION_DU_SOL/HAIE.shp'):
+                self.layer6_3 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/HAIE.shp', 'Haie', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer6_3)
             #
             self.SymboSol()
-            #
-            QgsProject.instance().addMapLayer(self.layer6_1)
-            QgsProject.instance().addMapLayer(self.layer6_2)
+
            
         else:
             #
-            QgsProject.instance().removeMapLayer(self.layer6_1)
-            QgsProject.instance().removeMapLayer(self.layer6_2)
+            if hasattr(self, 'layer6_1'):
+                QgsProject.instance().removeMapLayer(self.layer6_1)
+            if hasattr(self, 'layer6_2'):
+                QgsProject.instance().removeMapLayer(self.layer6_2)
+            if hasattr(self, 'layer6_3'):
+                QgsProject.instance().removeMapLayer(self.layer6_3)
             #
             self.canvas.refresh()
 
@@ -695,38 +874,58 @@ class QuickIGN:
         propsB = {'color': '#298A08', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         B = QgsFillSymbol.createSimple(propsB)
         #
-        self.layer6_1.setRenderer(QgsSingleSymbolRenderer(A))        
-        self.layer6_2.setRenderer(QgsSingleSymbolRenderer(B))
-
+        if hasattr(self, 'layer6_1'):
+            self.layer6_1.setRenderer(QgsSingleSymbolRenderer(A))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer6_1.id())
+        if hasattr(self, 'layer6_2'):
+            self.layer6_2.setRenderer(QgsSingleSymbolRenderer(B))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer6_2.id())
+           
+        lineC = QgsLineSymbol.createSimple({'line_style': 'continu', 'color': '#ECF6CE'})
+       
+        if hasattr(self, 'layer6_3'):
+            self.layer6_3.setRenderer(QgsSingleSymbolRenderer(lineC))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer6_3.id())
 
     def ouvServiceEtActivite(self):
         #
         if self.dockwidget.checkBoxServiceEtActivite.isChecked():
             #
-            self.layer7_1 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/ZONE_D_ACTIVITE_OU_D_INTERET.shp', "Zone d'activité", 'ogr')
-            self.layer7_2 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/POSTE_DE_TRANSFORMATION.shp', 'Poste de transformation', 'ogr')
-            self.layer7_3 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/CANALISATION.shp', 'Canalisation', 'ogr')
-            self.layer7_4 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/LIGNE_ELECTRIQUE.shp', 'Ligne électrique', 'ogr')
-            self.layer7_5 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/ERP.shp', 'ERP', 'ogr')  
-            self.layer7_6 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/TOPONYMIE_SERVICES_ET_ACTIVITES.shp', 'Toponyme service', 'ogr')                        
+            if path.exists(self.url + '/SERVICES_ET_ACTIVITES/ZONE_D_ACTIVITE_OU_D_INTERET.shp'):
+                self.layer7_1 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/ZONE_D_ACTIVITE_OU_D_INTERET.shp', "Zone d'activité", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer7_1)
+            if path.exists(self.url + '/SERVICES_ET_ACTIVITES/POSTE_DE_TRANSFORMATION.shp'):
+                self.layer7_2 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/POSTE_DE_TRANSFORMATION.shp', 'Poste de transformation', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer7_2)
+            if path.exists(self.url + '/SERVICES_ET_ACTIVITES/CANALISATION.shp'):
+                self.layer7_3 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/CANALISATION.shp', 'Canalisation', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer7_3)
+            if path.exists(self.url + '/SERVICES_ET_ACTIVITES/LIGNE_ELECTRIQUE.shp'):
+                self.layer7_4 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/LIGNE_ELECTRIQUE.shp', 'Ligne électrique', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer7_4)
+            if path.exists(self.url + '/SERVICES_ET_ACTIVITES/ERP.shp'):
+                self.layer7_5 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/ERP.shp', 'ERP', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer7_5)
+            if path.exists(self.url + '/SERVICES_ET_ACTIVITES/TOPONYMIE_SERVICES_ET_ACTIVITES.shp'):
+                self.layer7_6 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/TOPONYMIE_SERVICES_ET_ACTIVITES.shp', 'Toponyme service', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer7_6)                      
             #
             self.SymboServiceEtActivite()
-            #
-            QgsProject.instance().addMapLayer(self.layer7_1)
-            QgsProject.instance().addMapLayer(self.layer7_2)
-            QgsProject.instance().addMapLayer(self.layer7_3)
-            QgsProject.instance().addMapLayer(self.layer7_4)
-            QgsProject.instance().addMapLayer(self.layer7_5)
-            QgsProject.instance().addMapLayer(self.layer7_6)
            
         else:
             #
-            QgsProject.instance().removeMapLayer(self.layer7_1)
-            QgsProject.instance().removeMapLayer(self.layer7_2)
-            QgsProject.instance().removeMapLayer(self.layer7_3)
-            QgsProject.instance().removeMapLayer(self.layer7_4)
-            QgsProject.instance().removeMapLayer(self.layer7_5)
-            QgsProject.instance().removeMapLayer(self.layer7_6)
+            if hasattr(self, 'layer7_1'):
+                QgsProject.instance().removeMapLayer(self.layer7_1)
+            if hasattr(self, 'layer7_2'):
+                QgsProject.instance().removeMapLayer(self.layer7_2)
+            if hasattr(self, 'layer7_3'):
+                QgsProject.instance().removeMapLayer(self.layer7_3)
+            if hasattr(self, 'layer7_4'):
+                QgsProject.instance().removeMapLayer(self.layer7_4)
+            if hasattr(self, 'layer7_5'):
+                QgsProject.instance().removeMapLayer(self.layer7_5)
+            if hasattr(self, 'layer7_6'):
+                QgsProject.instance().removeMapLayer(self.layer7_6)
             #
             self.canvas.refresh()
 
@@ -737,69 +936,115 @@ class QuickIGN:
         propsB = {'color': '#133A6A', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         B = QgsFillSymbol.createSimple(propsB)
         #
-        self.layer7_1.setRenderer(QgsSingleSymbolRenderer(A))        
-        self.layer7_2.setRenderer(QgsSingleSymbolRenderer(B))
+        if hasattr(self, 'layer7_1'):
+            self.layer7_1.setRenderer(QgsSingleSymbolRenderer(A))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer7_1.id())
+        if hasattr(self, 'layer7_2'):        
+            self.layer7_2.setRenderer(QgsSingleSymbolRenderer(B))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer7_2.id())
        
         #
         lineC = QgsLineSymbol.createSimple({'line_style': 'dash', 'color': '#002FFB'})
         lineD = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#4F6988'})
         #
-        self.layer7_3.renderer().setSymbol(lineC)        
-        self.layer7_4.renderer().setSymbol(lineD)
+        if hasattr(self, 'layer7_3'):
+            self.layer7_3.renderer().setSymbol(lineC)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer7_3.id())
+        if hasattr(self, 'layer7_4'):
+            self.layer7_4.renderer().setSymbol(lineD)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer7_4.id())
        
         #
-        symbolE = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#EDB59A', 'color_border' : '0,0,0', 'width_border': '0,3'})        
+        symbolE = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FF4000', 'color_border' : '0,0,0', 'width_border': '0,3'})        
         symbolF = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#ECA713', 'color_border' : '0,0,0', 'width_border': '0,3'})
         #
-        self.layer7_5.renderer().setSymbol(symbolE)                                        
-        self.layer7_6.renderer().setSymbol(symbolF)
+        if hasattr(self, 'layer7_5'):
+            self.layer7_5.renderer().setSymbol(symbolE)  
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer7_5.id())
+        if hasattr(self, 'layer7_6'):                                      
+            self.layer7_6.renderer().setSymbol(symbolF)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer7_6.id())
 
     def ouvTransport(self):
         #
         if self.dockwidget.checkBoxTransport.isChecked():
-            #
-            self.layer8_1 = QgsVectorLayer(self.url + '/TRANSPORT/EQUIPEMENT_DE_TRANSPORT.shp', 'Equipement de transport', 'ogr')
-            self.layer8_2 = QgsVectorLayer(self.url + '/TRANSPORT/AERODROME.shp', 'Aerodrome', 'ogr')
-            self.layer8_3 = QgsVectorLayer(self.url + '/TRANSPORT/PISTE_D_AERODROME.shp', 'Piste aerodrome', 'ogr')
-            self.layer8_4 = QgsVectorLayer(self.url + '/TRANSPORT/TRONCON_DE_ROUTE.shp', 'Troncon de route', 'ogr')
-            self.layer8_5 = QgsVectorLayer(self.url + '/TRANSPORT/VOIE_FERREE_NOMMEE.shp', 'Voie ferree nommee', 'ogr')
-            self.layer8_6 = QgsVectorLayer(self.url + '/TRANSPORT/ITI_AUTRE.shp', 'ITI autre', 'ogr')
-            self.layer8_7 = QgsVectorLayer(self.url + '/TRANSPORT/ROUTE_NUMEROTEE_OU_NOMMEE.shp', 'Route numerotee', 'ogr')
-            self.layer8_8 = QgsVectorLayer(self.url + '/TRANSPORT/TRONCON_DE_VOIE_FERREE.shp', 'Troncon de voie ferree', 'ogr')
-            self.layer8_9 = QgsVectorLayer(self.url + '/TRANSPORT/POINT_DE_REPERE.shp', 'Point de repere', 'ogr')
-            self.layer8_10 = QgsVectorLayer(self.url + '/TRANSPORT/NON_COMMUNICATION.shp', 'Non communication', 'ogr')
-            self.layer8_11 = QgsVectorLayer(self.url + '/TRANSPORT/POINT_DU_RESEAU.shp', 'Point du reseau', 'ogr')
-            self.layer8_12 = QgsVectorLayer(self.url + '/TRANSPORT/TOPONYMIE_TRANSPORT.shp', 'Toponyme transport', 'ogr')
+            if path.exists(self.url + '/TRANSPORT/EQUIPEMENT_DE_TRANSPORT.shp'):
+                self.layer8_1 = QgsVectorLayer(self.url + '/TRANSPORT/EQUIPEMENT_DE_TRANSPORT.shp', 'Equipement de transport', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_1)
+            if path.exists(self.url + '/TRANSPORT/AERODROME.shp'):
+                self.layer8_2 = QgsVectorLayer(self.url + '/TRANSPORT/AERODROME.shp', 'Aerodrome', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_2)
+            if path.exists(self.url + '/TRANSPORT/PISTE_D_AERODROME.shp'):
+                self.layer8_3 = QgsVectorLayer(self.url + '/TRANSPORT/PISTE_D_AERODROME.shp', 'Piste aerodrome', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_3)
+            if path.exists(self.url + '/TRANSPORT/TRONCON_DE_ROUTE.shp'):
+                self.layer8_4 = QgsVectorLayer(self.url + '/TRANSPORT/TRONCON_DE_ROUTE.shp', 'Troncon de route', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_4)
+            if path.exists(self.url + '/TRANSPORT/VOIE_FERREE_NOMMEE.shp'):
+                self.layer8_5 = QgsVectorLayer(self.url + '/TRANSPORT/VOIE_FERREE_NOMMEE.shp', 'Voie ferree nommee', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_5)
+            if path.exists(self.url + '/TRANSPORT/ITI_AUTRE.shp'):
+                self.layer8_6 = QgsVectorLayer(self.url + '/TRANSPORT/ITI_AUTRE.shp', 'ITI autre', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_6)
+            if path.exists(self.url + '/TRANSPORT/ROUTE_NUMEROTEE_OU_NOMMEE.shp'):
+                self.layer8_7 = QgsVectorLayer(self.url + '/TRANSPORT/ROUTE_NUMEROTEE_OU_NOMMEE.shp', 'Route numerotee', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_7)
+            if path.exists(self.url + '/TRANSPORT/TRONCON_DE_VOIE_FERREE.shp'):
+                self.layer8_8 = QgsVectorLayer(self.url + '/TRANSPORT/TRONCON_DE_VOIE_FERREE.shp', 'Troncon de voie ferree', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_8)
+            if path.exists(self.url + '/TRANSPORT/TRANSPORT_PAR_CABLE.shp'):
+                self.layer8_9 = QgsVectorLayer(self.url + '/TRANSPORT/TRANSPORT_PAR_CABLE.shp', 'Transport par cable', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_9)
+            if path.exists(self.url + '/TRANSPORT/POINT_DE_REPERE.shp'):
+                self.layer8_10 = QgsVectorLayer(self.url + '/TRANSPORT/POINT_DE_REPERE.shp', 'Point de repere', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_10)
+            if path.exists(self.url + '/TRANSPORT/NON_COMMUNICATION.shp'):
+                self.layer8_11 = QgsVectorLayer(self.url + '/TRANSPORT/NON_COMMUNICATION.shp', 'Non communication', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_11)
+            if path.exists(self.url + '/TRANSPORT/POINT_DU_RESEAU.shp'):
+                self.layer8_12 = QgsVectorLayer(self.url + '/TRANSPORT/POINT_DU_RESEAU.shp', 'Point du reseau', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_12)
+            if path.exists(self.url + '/TRANSPORT/TOPONYMIE_TRANSPORT.shp'):
+                self.layer8_13 = QgsVectorLayer(self.url + '/TRANSPORT/TOPONYMIE_TRANSPORT.shp', 'Toponyme transport', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_13)
+            if path.exists(self.url + '/TRANSPORT/POINT_D_ACCES.shp'):
+                self.layer8_14 = QgsVectorLayer(self.url + '/TRANSPORT/POINT_D_ACCES.shp', "Point d'accès", 'ogr')
+                QgsProject.instance().addMapLayer(self.layer8_14)  
+           
             #
             self.SymboTransport()
-            #
-            QgsProject.instance().addMapLayer(self.layer8_1)            
-            QgsProject.instance().addMapLayer(self.layer8_2)
-            QgsProject.instance().addMapLayer(self.layer8_3)            
-            QgsProject.instance().addMapLayer(self.layer8_4)            
-            QgsProject.instance().addMapLayer(self.layer8_5)          
-            QgsProject.instance().addMapLayer(self.layer8_6)            
-            QgsProject.instance().addMapLayer(self.layer8_7)
-            QgsProject.instance().addMapLayer(self.layer8_8)            
-            QgsProject.instance().addMapLayer(self.layer8_9)            
-            QgsProject.instance().addMapLayer(self.layer8_10)            
-            QgsProject.instance().addMapLayer(self.layer8_11)            
-            QgsProject.instance().addMapLayer(self.layer8_12)
-           
+
+               
         else:
-            #
-            QgsProject.instance().removeMapLayer(self.layer8_1)
-            QgsProject.instance().removeMapLayer(self.layer8_2)
-            QgsProject.instance().removeMapLayer(self.layer8_3)
-            QgsProject.instance().removeMapLayer(self.layer8_4)
-            QgsProject.instance().removeMapLayer(self.layer8_5)
-            QgsProject.instance().removeMapLayer(self.layer8_6)
-            QgsProject.instance().removeMapLayer(self.layer8_7)
-            QgsProject.instance().removeMapLayer(self.layer8_8)
-            QgsProject.instance().removeMapLayer(self.layer8_9)
-            QgsProject.instance().removeMapLayer(self.layer8_10)
-            QgsProject.instance().removeMapLayer(self.layer8_11)
-            QgsProject.instance().removeMapLayer(self.layer8_12)
+
+            if hasattr(self, 'layer8_1'):
+                QgsProject.instance().removeMapLayer(self.layer8_1)
+            if hasattr(self, 'layer8_2'):
+                QgsProject.instance().removeMapLayer(self.layer8_2)
+            if hasattr(self, 'layer8_3'):
+                QgsProject.instance().removeMapLayer(self.layer8_3)
+            if hasattr(self, 'layer8_4'):
+                QgsProject.instance().removeMapLayer(self.layer8_4)
+            if hasattr(self, 'layer8_5'):
+                QgsProject.instance().removeMapLayer(self.layer8_5)
+            if hasattr(self, 'layer8_6'):
+                QgsProject.instance().removeMapLayer(self.layer8_6)
+            if hasattr(self, 'layer8_7'):
+                QgsProject.instance().removeMapLayer(self.layer8_7)
+            if hasattr(self, 'layer8_8'):
+                QgsProject.instance().removeMapLayer(self.layer8_8)
+            if hasattr(self, 'layer8_9'):
+                QgsProject.instance().removeMapLayer(self.layer8_9)
+            if hasattr(self, 'layer8_10'):
+                QgsProject.instance().removeMapLayer(self.layer8_10)
+            if hasattr(self, 'layer8_11'):
+                QgsProject.instance().removeMapLayer(self.layer8_11)
+            if hasattr(self, 'layer8_12'):
+                QgsProject.instance().removeMapLayer(self.layer8_12)
+            if hasattr(self, 'layer8_13'):
+                QgsProject.instance().removeMapLayer(self.layer8_13)
+            if hasattr(self, 'layer8_14'):
+                QgsProject.instance().removeMapLayer(self.layer8_14)
             #
             self.canvas.refresh()
    
@@ -812,53 +1057,91 @@ class QuickIGN:
         propsC = {'color': '#CEECF5', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         C = QgsFillSymbol.createSimple(propsC)
         #
-        self.layer8_1.setRenderer(QgsSingleSymbolRenderer(A))        
-        self.layer8_2.setRenderer(QgsSingleSymbolRenderer(B))
-        self.layer8_3.setRenderer(QgsSingleSymbolRenderer(C))
+        if hasattr(self, 'layer8_1'):
+            self.layer8_1.setRenderer(QgsSingleSymbolRenderer(A))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_1.id())
+        if hasattr(self, 'layer8_2'):        
+            self.layer8_2.setRenderer(QgsSingleSymbolRenderer(B))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_2.id())
+        if hasattr(self, 'layer8_3'):
+            self.layer8_3.setRenderer(QgsSingleSymbolRenderer(C))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_3.id())
        
         #
         lineD = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#A4A4A4'})
         lineE = QgsLineSymbol.createSimple({'line_style': 'dash', 'color': '#000000'})
         lineF = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#8A2908'})
-        lineG = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#DF0101'})
+        lineG = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#DF0101', 'line_width': '1'})
         lineH = QgsLineSymbol.createSimple({'line_style': 'dash', 'color': '#581C01'})
+        lineI = QgsLineSymbol.createSimple({'line_style': 'continu', 'color': '#424242'})
         #                                  
-        self.layer8_4.renderer().setSymbol(lineD)        
-        self.layer8_5.renderer().setSymbol(lineE)        
-        self.layer8_6.renderer().setSymbol(lineF)
-        self.layer8_7.renderer().setSymbol(lineG)        
-        self.layer8_8.renderer().setSymbol(lineH)
+       
+        if hasattr(self, 'layer8_4'):
+            self.layer8_4.renderer().setSymbol(lineD)  
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_4.id())
+        if hasattr(self, 'layer8_5'):    
+            self.layer8_5.renderer().setSymbol(lineE)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_5.id())
+        if hasattr(self, 'layer8_6'):
+            self.layer8_6.renderer().setSymbol(lineF)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_6.id())
+        if hasattr(self, 'layer8_7'):
+            self.layer8_7.renderer().setSymbol(lineG)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_7.id())
+        if hasattr(self, 'layer8_8'):
+            self.layer8_8.renderer().setSymbol(lineH)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_8.id())
+        if hasattr(self, 'layer8_9'):
+            self.layer8_9.renderer().setSymbol(lineI)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_9.id())
        
         #
-        symbolI = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#F3F781', 'color_border' : '0,0,0', 'width_border': '0,3'})
-        symbolJ = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FFBF00', 'color_border' : '0,0,0', 'width_border': '0,3'})
-        symbolK = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#F7BE81', 'color_border' : '0,0,0', 'width_border': '0,3'})
-        symbolL = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FA5858', 'color_border' : '0,0,0', 'width_border': '0,3'})
-        #                                      
-        self.layer8_9.renderer().setSymbol(symbolI)        
-        self.layer8_10.renderer().setSymbol(symbolJ)        
-        self.layer8_11.renderer().setSymbol(symbolK)        
-        self.layer8_12.renderer().setSymbol(symbolL)
+        symbolJ = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#F3F781', 'color_border' : '0,0,0', 'width_border': '0,3'})
+        symbolK = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FFBF00', 'color_border' : '0,0,0', 'width_border': '0,3'})
+        symbolL = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#F7BE81', 'color_border' : '0,0,0', 'width_border': '0,3'})
+        symbolM = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FA5858', 'color_border' : '0,0,0', 'width_border': '0,3'})
+        symbolN = QgsMarkerSymbol.createSimple({'name': 'square', 'color': '#848484', 'color_border' : '0,0,0', 'width_border': '0,3'})
+        #  
+        if hasattr(self, 'layer8_10'):                                    
+            self.layer8_10.renderer().setSymbol(symbolJ)  
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_10.id())
+        if hasattr(self, 'layer8_11'):
+            self.layer8_11.renderer().setSymbol(symbolK)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_11.id())
+        if hasattr(self, 'layer8_12'):
+            self.layer8_12.renderer().setSymbol(symbolL)  
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_12.id())
+        if hasattr(self, 'layer8_13'):
+            self.layer8_13.renderer().setSymbol(symbolM)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_13.id())
+        if hasattr(self, 'layer8_14'):
+            self.layer8_14.renderer().setSymbol(symbolN)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer8_14.id())
    
     def ouvZonereglementee(self):
         #
         if self.dockwidget.checkBoxZoneRegle.isChecked():
             #
-            self.layer9_1 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/FORET_PUBLIQUE.shp', 'Foret publique', 'ogr')
-            self.layer9_2 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/PARC_OU_RESERVE.shp', 'Parc ou reserve', 'ogr')
-            self.layer9_3 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/TOPONYMIE_ZONES_REGLEMENTEES.shp', 'Toponyme zone reglementee', 'ogr')
+            if path.exists(self.url + '//ZONES_REGLEMENTEES/FORET_PUBLIQUE.shp'):
+                self.layer9_1 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/FORET_PUBLIQUE.shp', 'Foret publique', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer9_1)
+            if path.exists(self.url + '/ZONES_REGLEMENTEES/PARC_OU_RESERVE.shp'):
+                self.layer9_2 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/PARC_OU_RESERVE.shp', 'Parc ou reserve', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer9_2)
+            if path.exists(self.url + '/ZONES_REGLEMENTEES/TOPONYMIE_ZONES_REGLEMENTEES.shp'):
+                self.layer9_3 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/TOPONYMIE_ZONES_REGLEMENTEES.shp', 'Toponyme zone reglementee', 'ogr')
+                QgsProject.instance().addMapLayer(self.layer9_3)
             #
             self.SymboZone()
-            #
-            QgsProject.instance().addMapLayer(self.layer9_1)
-            QgsProject.instance().addMapLayer(self.layer9_2)
-            QgsProject.instance().addMapLayer(self.layer9_3)
            
         else:
             #
-            QgsProject.instance().removeMapLayer(self.layer9_1)
-            QgsProject.instance().removeMapLayer(self.layer9_2)
-            QgsProject.instance().removeMapLayer(self.layer9_3)
+            if hasattr(self, 'layer9_1'):
+                QgsProject.instance().removeMapLayer(self.layer9_1)
+            if hasattr(self, 'layer9_2'):
+                QgsProject.instance().removeMapLayer(self.layer9_2)
+            if hasattr(self, 'layer9_3'):
+                QgsProject.instance().removeMapLayer(self.layer9_3)
             #
             self.canvas.refresh()
 
@@ -869,254 +1152,16 @@ class QuickIGN:
         propsB = {'color': '#E0F8E0', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         B = QgsFillSymbol.createSimple(propsB)
         #
-        self.layer9_1.setRenderer(QgsSingleSymbolRenderer(A))
-        self.layer9_2.setRenderer(QgsSingleSymbolRenderer(B))
+        if hasattr(self, 'layer9_1'):
+            self.layer9_1.setRenderer(QgsSingleSymbolRenderer(A))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer9_1.id())
+        if hasattr(self, 'layer9_2'):
+            self.layer9_2.setRenderer(QgsSingleSymbolRenderer(B))
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer9_2.id())
        
         #
         symbolC = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#A4A4A4', 'color_border' : '0,0,0', 'width_border': '0.3'})
         #
-        self.layer9_3.renderer().setSymbol(symbolC)
-    
-# =============================================================================
-#     def ouvAdministratif(self):
-#         if self.dockwidget.checkBoxAdministratif.isChecked():
-#             self.layer1_1 = QgsVectorLayer(self.url + '/ADMINISTRATIF/REGION.shp', 'Region', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer1_1)
-#             self.layer1_2 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COLLECTIVITE_TERRITORIALE.shp', 'Collectivite territoriale', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer1_2)
-#             self.layer1_3 = QgsVectorLayer(self.url + '/ADMINISTRATIF/DEPARTEMENT.shp', 'Departement', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer1_3)
-#             self.layer1_4 = QgsVectorLayer(self.url + '/ADMINISTRATIF/ARRONDISSEMENT.shp', 'Arrondissement', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer1_4)
-#             self.layer1_5 = QgsVectorLayer(self.url + '/ADMINISTRATIF/EPCI.shp', 'ECPI', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer1_5)
-#             self.layer1_6 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COMMUNE.shp', 'Commune', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer1_6)
-#             self.layer1_7 = QgsVectorLayer(self.url + '/ADMINISTRATIF/COMMUNE_ASSOCIEE_OU_DELEGUEE.shp', 'Commune associee', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer1_7)
-#              
-#            
-#         else:
-#             QgsProject.instance().removeMapLayer(self.layer1_1)
-#             QgsProject.instance().removeMapLayer(self.layer1_2)
-#             QgsProject.instance().removeMapLayer(self.layer1_3)
-#             QgsProject.instance().removeMapLayer(self.layer1_4)
-#             QgsProject.instance().removeMapLayer(self.layer1_5)
-#             QgsProject.instance().removeMapLayer(self.layer1_6)
-#             QgsProject.instance().removeMapLayer(self.layer1_7)
-#             self.canvas.refresh()
-#            
-#            
-# 
-#     def ouvAdresse(self):
-#         if self.dockwidget.checkBoxAdresse.isChecked():
-#             self.layer2_1 = QgsVectorLayer(self.url + "/ADRESSES/ADRESSE.shp", 'Adresse', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer2_1)
-#             self.layer2_2 = QgsVectorLayer(self.url + "/ADRESSES/VOIE_NOMMEE.shp", 'Voie nommee', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer2_2)
-#            
-#         else:
-#             QgsProject.instance().removeMapLayer(self.layer2_1)
-#             QgsProject.instance().removeMapLayer(self.layer2_2)
-#             self.canvas.refresh()
-#            
-#            
-#     def ouvBati(self):
-#         if self.dockwidget.checkBoxBati.isChecked() :
-#             self.layer3_1 = QgsVectorLayer(self.url + "/BATI/BATIMENT.shp", 'Batiment ', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_1)
-#             self.layer3_2 = QgsVectorLayer(self.url + "/BATI/CIMETIERE.shp", "Cimetière", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_2)    
-#             self.layer3_3 = QgsVectorLayer(self.url + "/BATI/DETAIL_HYDROGRAPHIQUE.shp", 'Détails', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_3)    
-#             self.layer3_4 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_LINEAIRE.shp", 'Construction Linéaire', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_4)    
-#             self.layer3_5 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_PONCTUELLE.shp", 'Construction Ponctuelle', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_5)
-#             self.layer3_6 = QgsVectorLayer(self.url + "/BATI/CONSTRUCTION_SURFACIQUE.shp", "Construction surfacique", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_6)
-#             self.layer3_7 = QgsVectorLayer(self.url + "/BATI/LIGNE_OROGRAPHIQUE.shp", 'Ligne Orographique', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_7)
-#             self.layer3_8 = QgsVectorLayer(self.url + "/BATI/PYLONE.shp", 'Pylone', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_8)
-#             self.layer3_9 = QgsVectorLayer(self.url + "/BATI/RESERVOIR.shp", 'Réservoir ', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_9)
-#             self.layer3_10 = QgsVectorLayer(self.url + "/BATI/TERRAIN_DE_SPORT.shp", 'Terrain de sport ', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_10)
-#             self.layer3_11 = QgsVectorLayer(self.url + "/BATI/TOPONYMIE_BATI.shp", 'Toponymie bati ', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer3_11)
-#            
-#         else:
-#             QgsProject.instance().removeMapLayer(self.layer3_1)
-#             QgsProject.instance().removeMapLayer(self.layer3_2)
-#             QgsProject.instance().removeMapLayer(self.layer3_3)
-#             QgsProject.instance().removeMapLayer(self.layer3_4)
-#             QgsProject.instance().removeMapLayer(self.layer3_5)
-#             QgsProject.instance().removeMapLayer(self.layer3_6)
-#             QgsProject.instance().removeMapLayer(self.layer3_7)
-#             QgsProject.instance().removeMapLayer(self.layer3_8)
-#             QgsProject.instance().removeMapLayer(self.layer3_9)
-#             QgsProject.instance().removeMapLayer(self.layer3_10)
-#             QgsProject.instance().removeMapLayer(self.layer3_11)
-#             self.canvas.refresh()
-#            
-#            
-#     def ouvHydro(self):
-#        
-#         if self.dockwidget.checkBoxHydro.isChecked():
-#             self.layer4_1 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/BASSIN_VERSANT_TOPOGRAPHIQUE.shp', 'Bassin Versant', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_1)
-#             self.layer4_2 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/COURS_D_EAU.shp', "Courd d'eau", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_2)
-#             self.layer4_3 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/DETAIL_HYDROGRAPHIQUE.shp', "Détail hydrographique", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_3)
-#             self.layer4_4 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/LIMITE_TERRE_MER.shp', "Limite terre/mer", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_4)
-#             self.layer4_5 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/NOEUD_HYDROGRAPHIQUE.shp', "Noeud hydrographique", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_5)
-#             self.layer4_6 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/PLAN_D_EAU.shp', "Plan d'eau", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_6)
-#             self.layer4_7 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/SURFACE_HYDROGRAPHIQUE.shp', "Surface hydrographique", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_7)
-#             self.layer4_8 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/TOPONYMIE_HYDROGRAPHIE.shp', "Toponymie hydrographie", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_8)
-#             self.layer4_9 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/TRONCON_HYDROGRAPHIQUE.shp', "Troncon hydrograpĥique", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer4_9)
-#        
-#         else:
-#             print('else')
-#             QgsProject.instance().removeMapLayer(self.layer4_1)
-#             QgsProject.instance().removeMapLayer(self.layer4_2)
-#             QgsProject.instance().removeMapLayer(self.layer4_3)
-#             QgsProject.instance().removeMapLayer(self.layer4_4)
-#             QgsProject.instance().removeMapLayer(self.layer4_5)
-#             QgsProject.instance().removeMapLayer(self.layer4_6)
-#             QgsProject.instance().removeMapLayer(self.layer4_7)
-#             QgsProject.instance().removeMapLayer(self.layer4_8)
-#             QgsProject.instance().removeMapLayer(self.layer4_9)
-#             self.canvas.refresh()
-# 
-# 
-# 
-#     def ouvLieuNomme(self):
-#         if self.dockwidget.checkBoxLieuNomme.isChecked():
-#             self.layer5_1 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/DETAIL_OROGRAPHIQUE.shp', 'Detail orographique', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer5_1)
-#             self.layer5_2 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/DETAIL_OROGRAPHIQUE.shp', 'Detail orographique', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer5_2)
-#             self.layer5_3 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/LIEU_DIT_NON_HABITE.shp', 'Lieu dit non habite', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer5_3)  
-#             self.layer5_4 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/TOPONYMIE_LIEUX_NOMMES.shp', 'Toponyme lieux nommes', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer5_4)  
-#             self.layer5_5 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/ZONE_D_HABITATION.shp', 'Zone d habitation', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer5_5)
-#            
-#         else:
-#             QgsProject.instance().removeMapLayer(self.layer5_1)
-#             QgsProject.instance().removeMapLayer(self.layer5_2)
-#             QgsProject.instance().removeMapLayer(self.layer5_3)
-#             QgsProject.instance().removeMapLayer(self.layer5_4)
-#             QgsProject.instance().removeMapLayer(self.layer5_5)
-#             self.canvas.refresh()
-# 
-# 
-# 
-#     def ouvOccupationDuSol(self):
-#         if self.dockwidget.checkBoxOccupationDuSol.isChecked():
-#             self.layer6_1 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/ZONE_D_ESTRAN.shp', 'Zonre d estran', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer6_1)
-#             self.layer6_2 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/ZONE_DE_VEGETATION.shp', 'Zonre de vegetation', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer6_2)
-#            
-#         else:
-#             QgsProject.instance().removeMapLayer(self.layer6_1)
-#             QgsProject.instance().removeMapLayer(self.layer6_2)
-#             self.canvas.refresh()
-# 
-# 
-# 
-#     def ouvServiceEtActivite(self):        
-#         if self.dockwidget.checkBoxServiceEtActivite.isChecked():
-#             self.layer7_1 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/CANALISATION.shp', 'Canalisation', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer7_1)
-#             self.layer7_2 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/ERP.shp', 'ERP', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer7_2)
-#             self.layer7_3 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/LIGNE_ELECTRIQUE.shp', 'Ligne electrique', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer7_3)
-#             self.layer7_4 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/POSTE_DE_TRANSFORMATION.shp', 'Poste de transformation', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer7_4)
-#             self.layer7_5 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/TOPONYMIE_SERVICES_ET_ACTIVITES.shp', 'Toponyme service', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer7_5)
-#             self.layer7_6 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/ZONE_D_ACTIVITE_OU_D_INTERET.shp', "Zone d'activite", 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer7_6)
-#            
-#         else:
-#             QgsProject.instance().removeMapLayer(self.layer7_1)
-#             QgsProject.instance().removeMapLayer(self.layer7_2)
-#             QgsProject.instance().removeMapLayer(self.layer7_3)
-#             QgsProject.instance().removeMapLayer(self.layer7_4)
-#             QgsProject.instance().removeMapLayer(self.layer7_5)
-#             QgsProject.instance().removeMapLayer(self.layer7_6)
-#             self.canvas.refresh()
-# 
-# 
-# 
-#     def ouvTransport(self):
-#         if self.dockwidget.checkBoxTransport.isChecked():
-#             self.layer8_1 = QgsVectorLayer(self.url + '/TRANSPORT/AERODROME.shp', 'Aerodrome', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_1)
-#             self.layer8_2 = QgsVectorLayer(self.url + '/TRANSPORT/EQUIPEMENT_DE_TRANSPORT.shp', 'Equipement de transport', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_2)
-#             self.layer8_3 = QgsVectorLayer(self.url + '/TRANSPORT/ITI_AUTRE.shp', 'ITI autre', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_3)
-#             self.layer8_4 = QgsVectorLayer(self.url + '/TRANSPORT/NON_COMMUNICATION.shp', 'Non communication', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_4)
-#             self.layer8_5 = QgsVectorLayer(self.url + '/TRANSPORT/PISTE_D_AERODROME.shp', 'Piste aerodrome', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_5)
-#             self.layer8_6 = QgsVectorLayer(self.url + '/TRANSPORT/POINT_DE_REPERE.shp', 'Point de repere', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_6)
-#             self.layer8_7 = QgsVectorLayer(self.url + '/TRANSPORT/POINT_DU_RESEAU.shp', 'Point du reseau', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_7)
-#             self.layer8_8 = QgsVectorLayer(self.url + '/TRANSPORT/ROUTE_NUMEROTEE_OU_NOMMEE.shp', 'Route numerotee', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_8)
-#             self.layer8_9 = QgsVectorLayer(self.url + '/TRANSPORT/TOPONYMIE_TRANSPORT.shp', 'Toponyme transport', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_9)
-#             self.layer8_10 = QgsVectorLayer(self.url + '/TRANSPORT/TRONCON_DE_ROUTE.shp', 'Troncon de route', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_10)
-#             self.layer8_11 = QgsVectorLayer(self.url + '/TRANSPORT/TRONCON_DE_VOIE_FERREE.shp', 'Troncon de voie ferree', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_11)
-#             self.layer8_12 = QgsVectorLayer(self.url + '/TRANSPORT/VOIE_FERREE_NOMMEE.shp', 'Voie ferree nommee', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer8_12)
-#            
-#         else:
-#             QgsProject.instance().removeMapLayer(self.layer8_1)
-#             QgsProject.instance().removeMapLayer(self.layer8_2)
-#             QgsProject.instance().removeMapLayer(self.layer8_3)
-#             QgsProject.instance().removeMapLayer(self.layer8_4)
-#             QgsProject.instance().removeMapLayer(self.layer8_5)
-#             QgsProject.instance().removeMapLayer(self.layer8_6)
-#             QgsProject.instance().removeMapLayer(self.layer8_7)
-#             QgsProject.instance().removeMapLayer(self.layer8_8)
-#             QgsProject.instance().removeMapLayer(self.layer8_9)
-#             QgsProject.instance().removeMapLayer(self.layer8_10)
-#             QgsProject.instance().removeMapLayer(self.layer8_11)
-#             QgsProject.instance().removeMapLayer(self.layer8_12)
-#             self.canvas.refresh()
-#    
-#    
-#    
-#     def ouvZonereglementee(self):
-#         if self.dockwidget.checkBoxZoneRegle.isChecked():
-#             self.layer9_1 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/FORET_PUBLIQUE.shp', 'Foret publique', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer9_1)      
-#             self.layer9_2 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/PARC_OU_RESERVE.shp', 'Parc ou reserve', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer9_2)      
-#             self.layer9_3 = QgsVectorLayer(self.url + '/ZONES_REGLEMENTEES/TOPONYMIE_ZONES_REGLEMENTEES.shp', 'Toponyme zone reglementee', 'ogr')
-#             QgsProject.instance().addMapLayer(self.layer9_3)
-#        
-#         else:
-#             QgsProject.instance().removeMapLayer(self.layer9_1)
-#             QgsProject.instance().removeMapLayer(self.layer9_2)
-#             QgsProject.instance().removeMapLayer(self.layer9_3)
-#             self.canvas.refresh()
-# =============================================================================
+        if hasattr(self, 'layer9_3'):
+            self.layer9_3.renderer().setSymbol(symbolC)
+            self.iface.layerTreeView().refreshLayerSymbology(self.layer9_3.id())
