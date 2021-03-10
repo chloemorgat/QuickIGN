@@ -221,7 +221,9 @@ class QuickIGN:
         del self.toolbar
 
     #--------------------------------------------------------------------------
-
+   
+    #Ici commence la partie adaption du code : 
+    
     def run(self):
         """Run method that loads and starts the plugin"""
 
@@ -478,7 +480,7 @@ class QuickIGN:
     
     #Fonction permettant d'appliquer une symbologie à différentes couches, ici la symbologie concerne le couches situées dans le dossier "Admninistratif"       
     def SymboAdmi(self):  
-        #Création d'une symbologie pour un point 
+        #Création d'une symbologie pour le polygone "propsA" 
         propsA = {'color': '#F6CECE', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         #Permet d'appliquer propsA sur QGis          
         A = QgsFillSymbol.createSimple(propsA)
@@ -505,7 +507,7 @@ class QuickIGN:
         if hasattr(self, 'layer1_1'):
             #Permet de connecter le layer1_1 à sa symbologie (A)
             self.layer1_1.setRenderer(QgsSingleSymbolRenderer(A))  
-            #Permet de recharger la symbologie 
+            #Permet de recharger la symbologie sur la légende 
             self.iface.layerTreeView().refreshLayerSymbology(self.layer1_1.id())
         if hasattr(self, 'layer1_2'):
             self.layer1_2.setRenderer(QgsSingleSymbolRenderer(B))
@@ -532,6 +534,8 @@ class QuickIGN:
             self.layer1_9.setRenderer(QgsSingleSymbolRenderer(I))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer1_9.id())
  
+    #On réitère cette opération pour les huits autres thèmes
+    
     def ouvAdresse(self):
         if self.dockwidget.checkBoxAdresse.isChecked():
             if path.exists(self.url + '/ADRESSES/VOIE_NOMMEE.shp'):
@@ -540,8 +544,7 @@ class QuickIGN:
             if path.exists(self.url + '/ADRESSES/ADRESSE.shp'):
                 self.layer2_2 = QgsVectorLayer(self.url + "/ADRESSES/ADRESSE.shp", 'Adresse', 'ogr')
                 QgsProject.instance().addMapLayer(self.layer2_2)
-            self.SymboAdresse()
-
+            self.SymboAdresse()    
         else:
             if hasattr(self, 'layer2_1'):
                 QgsProject.instance().removeMapLayer(self.layer2_1)
@@ -550,24 +553,20 @@ class QuickIGN:
             self.canvas.refresh()
            
     def SymboAdresse(self):
-        #
+        #Création d'une symbologie pour la ligne "lineA" 
         lineA = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#FF8000'})
-        #
         if hasattr(self, 'layer2_1'):
             self.layer2_1.renderer().setSymbol(lineA)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer2_1.id())
        
-        #
+        #Création d'une symbologie pour le point "symbolB"
         symbolB = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#E482ED', 'color_border' : '0,0,0', 'width_border': '0,3'})
-        #
         if hasattr(self, 'layer2_2'):
             self.layer2_2.renderer().setSymbol(symbolB)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer2_2.id())
            
     def ouvBati(self):
-        #
         if self.dockwidget.checkBoxBati.isChecked() :
-            #
             if path.exists(self.url + '/BATI/BATIMENT.shp'):
                 self.layer3_1 = QgsVectorLayer(self.url + "/BATI/BATIMENT.shp", 'Batiment ', 'ogr')  
                 QgsProject.instance().addMapLayer(self.layer3_1)
@@ -601,12 +600,11 @@ class QuickIGN:
             if path.exists(self.url + '/BATI/DETAIL_HYDROGRAPHIQUE.shp'):
                 self.layer3_11 = QgsVectorLayer(self.url + "/BATI/DETAIL_HYDROGRAPHIQUE.shp", 'Détails', 'ogr')
                 QgsProject.instance().addMapLayer(self.layer3_11)
-            #
+                
             self.SymboBati()
            
            
         else:
-            #
             if hasattr(self, 'layer3_1'):
                 QgsProject.instance().removeMapLayer(self.layer3_1)
             if hasattr(self, 'layer3_2'):
@@ -629,11 +627,11 @@ class QuickIGN:
                 QgsProject.instance().removeMapLayer(self.layer3_10)
             if hasattr(self, 'layer3_11'):
                 QgsProject.instance().removeMapLayer(self.layer3_11)
-            #
+        
             self.canvas.refresh()
            
     def SymboBati(self):
-        #
+        
         propsA = {'color': '#8A4B08', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0.3'}
         A = QgsFillSymbol.createSimple(propsA)
         propsB = {'color': '#424242', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0.3'}
@@ -644,7 +642,6 @@ class QuickIGN:
         D = QgsFillSymbol.createSimple(propsD)
         propsE = {'color': '#868A08', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         E = QgsFillSymbol.createSimple(propsE)
-        #
         if hasattr(self, 'layer3_1'):
             self.layer3_1.setRenderer(QgsSingleSymbolRenderer(A))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer3_1.id())
@@ -661,10 +658,10 @@ class QuickIGN:
             self.layer3_5.setRenderer(QgsSingleSymbolRenderer(E))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer3_5.id())
        
-        #
+        
         lineF = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#8A0886'})
         lineG = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#868A08'})
-        #                                  
+                                         
         if hasattr(self, 'layer3_6'):
             self.layer3_6.renderer().setSymbol(lineF)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer3_6.id())
@@ -672,12 +669,12 @@ class QuickIGN:
             self.layer3_7.renderer().setSymbol(lineG)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer3_7.id())
        
-        #
+        
         symbolH = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FA5882', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolI = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#BDBDBD', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolJ = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#D358F7', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolK = QgsMarkerSymbol.createSimple({'name': 'square', 'color': '#8181F7', 'color_border' : '0,0,0', 'width_border': '0,3'})
-        #                                      
+                                              
         if hasattr(self, 'layer3_8'):
             self.layer3_8.renderer().setSymbol(symbolH)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer3_8.id())
@@ -692,9 +689,8 @@ class QuickIGN:
             self.iface.layerTreeView().refreshLayerSymbology(self.layer3_11.id())
        
     def ouvHydro(self):
-        #
         if self.dockwidget.checkBoxHydro.isChecked():
-            #
+            
             if path.exists(self.url + '/HYDROGRAPHIE/BASSIN_VERSANT_TOPOGRAPHIQUE.shp'):
                 self.layer4_1 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/BASSIN_VERSANT_TOPOGRAPHIQUE.shp', 'Bassin Versant', 'ogr')  
                 QgsProject.instance().addMapLayer(self.layer4_1)
@@ -725,11 +721,11 @@ class QuickIGN:
             if path.exists(self.url + '/HYDROGRAPHIE/ENTITE_DE_TRANSITION.shp'):
                 self.layer4_10 = QgsVectorLayer(self.url + '/HYDROGRAPHIE/ENTITE_DE_TRANSITION.shp', "Entité de transition", 'ogr')
                 QgsProject.instance().addMapLayer(self.layer4_10)
-            #
+
             self.SymboHydro()
 
         else:
-            #
+            
             if hasattr(self, 'layer4_1'):  
                 QgsProject.instance().removeMapLayer(self.layer4_1)
             if hasattr(self, 'layer4_2'):  
@@ -750,18 +746,17 @@ class QuickIGN:
                 QgsProject.instance().removeMapLayer(self.layer4_9)
             if hasattr(self, 'layer4_10'):  
                 QgsProject.instance().removeMapLayer(self.layer4_10)
-            #
+            
             self.canvas.refresh()
 
     def SymboHydro(self):
-        #
         propsA = {'color': '#CEF6F5', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         A = QgsFillSymbol.createSimple(propsA)
         propsB = {'color': '#A9E2F3', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         B = QgsFillSymbol.createSimple(propsB)
         propsC = {'color': '#2E64FE', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         C = QgsFillSymbol.createSimple(propsC)
-        #
+        
         if hasattr(self, 'layer4_1'):  
             self.layer4_1.setRenderer(QgsSingleSymbolRenderer(A))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer4_1.id())
@@ -772,11 +767,11 @@ class QuickIGN:
             self.layer4_3.setRenderer(QgsSingleSymbolRenderer(C))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer4_3.id())
        
-        #
+    
         lineD = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#23C3F9'})
         lineE = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#002FFB'})
         lineF = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#054291'})
-        #                                    
+                                           
         if hasattr(self, 'layer4_4'):  
             self.layer4_4.renderer().setSymbol(lineD)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer4_4.id())
@@ -787,12 +782,12 @@ class QuickIGN:
             self.layer4_6.renderer().setSymbol(lineF)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer4_6.id())
        
-        #
+
         symbolG = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#DA81F5', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolH = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#08088A', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolI = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#084B8A', 'color_border' : '0,0,0', 'width_border': '0,3'})
         symbolJ = QgsMarkerSymbol.createSimple({'name': 'square', 'color': '#084B8A', 'color_border' : '0,0,0', 'width_border': '0,3'})                                        
-        #                            
+                               
         if hasattr(self, 'layer4_7'):            
             self.layer4_7.renderer().setSymbol(symbolG)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer4_7.id())
@@ -808,9 +803,8 @@ class QuickIGN:
 
 
     def ouvLieuNomme(self):
-        #
         if self.dockwidget.checkBoxLieuNomme.isChecked():
-            #
+        
             if path.exists(self.url + '/LIEUX_NOMMES/ZONE_D_HABITATION.shp'):
                 self.layer5_1 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/ZONE_D_HABITATION.shp', "Zone d'habitation", 'ogr')
                 QgsProject.instance().addMapLayer(self.layer5_1)
@@ -823,12 +817,12 @@ class QuickIGN:
             if path.exists(self.url + '/LIEUX_NOMMES/LIEU_DIT_NON_HABITE.shp'):
                 self.layer5_4 = QgsVectorLayer(self.url + '/LIEUX_NOMMES/LIEU_DIT_NON_HABITE.shp', 'Lieu dit non habité', 'ogr')
                 QgsProject.instance().addMapLayer(self.layer5_4)
-            #
+            
             self.SymboLieuNomme()
            
            
         else:
-            #
+            
             if hasattr(self, 'layer5_1'):
                 QgsProject.instance().removeMapLayer(self.layer5_1)
             if hasattr(self, 'layer5_2'):
@@ -837,23 +831,20 @@ class QuickIGN:
                 QgsProject.instance().removeMapLayer(self.layer5_3)
             if hasattr(self, 'layer5_4'):
                 QgsProject.instance().removeMapLayer(self.layer5_4)
-            #
+            
             self.canvas.refresh()
 
     def SymboLieuNomme(self):
-        #
         propsA = {'color': '#FF4000', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         A = QgsFillSymbol.createSimple(propsA)
-        #
+        
         if hasattr(self, 'layer5_1'):
             self.layer5_1.setRenderer(QgsSingleSymbolRenderer(A))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer5_1.id())
-       
-        #
         symbolB = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FFBF00', 'color_border' : '0,0,0', 'width_border': '0.3'})
         symbolC = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#BFFF00', 'color_border' : '0,0,0', 'width_border': '0.3'})
         symbolD = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#00FFFF', 'color_border' : '0,0,0', 'width_border': '0.3'})
-        #  
+         
         if hasattr(self, 'layer5_2'):                                    
             self.layer5_2.renderer().setSymbol(symbolB)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer5_2.id())
@@ -867,9 +858,8 @@ class QuickIGN:
        
 
     def ouvOccupationDuSol(self):
-        #
         if self.dockwidget.checkBoxOccupationDuSol.isChecked():
-            #
+            
             if path.exists(self.url + '/OCCUPATION_DU_SOL/ZONE_D_ESTRAN.shp'):
                 self.layer6_1 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/ZONE_D_ESTRAN.shp', "Zonre d'estran", 'ogr')
                 QgsProject.instance().addMapLayer(self.layer6_1)
@@ -879,28 +869,27 @@ class QuickIGN:
             if path.exists(self.url + '/OCCUPATION_DU_SOL/HAIE.shp'):
                 self.layer6_3 = QgsVectorLayer(self.url + '/OCCUPATION_DU_SOL/HAIE.shp', 'Haie', 'ogr')
                 QgsProject.instance().addMapLayer(self.layer6_3)
-            #
+            
             self.SymboSol()
 
            
         else:
-            #
+            
             if hasattr(self, 'layer6_1'):
                 QgsProject.instance().removeMapLayer(self.layer6_1)
             if hasattr(self, 'layer6_2'):
                 QgsProject.instance().removeMapLayer(self.layer6_2)
             if hasattr(self, 'layer6_3'):
                 QgsProject.instance().removeMapLayer(self.layer6_3)
-            #
+            
             self.canvas.refresh()
 
     def SymboSol(self):
-        #
         propsA = {'color': '#086A87', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         A = QgsFillSymbol.createSimple(propsA)
         propsB = {'color': '#298A08', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         B = QgsFillSymbol.createSimple(propsB)
-        #
+       
         if hasattr(self, 'layer6_1'):
             self.layer6_1.setRenderer(QgsSingleSymbolRenderer(A))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer6_1.id())
@@ -915,9 +904,9 @@ class QuickIGN:
             self.iface.layerTreeView().refreshLayerSymbology(self.layer6_3.id())
 
     def ouvServiceEtActivite(self):
-        #
+        
         if self.dockwidget.checkBoxServiceEtActivite.isChecked():
-            #
+            
             if path.exists(self.url + '/SERVICES_ET_ACTIVITES/ZONE_D_ACTIVITE_OU_D_INTERET.shp'):
                 self.layer7_1 = QgsVectorLayer(self.url + '/SERVICES_ET_ACTIVITES/ZONE_D_ACTIVITE_OU_D_INTERET.shp', "Zone d'activité", 'ogr')
                 QgsProject.instance().addMapLayer(self.layer7_1)
@@ -940,7 +929,7 @@ class QuickIGN:
             self.SymboServiceEtActivite()
            
         else:
-            #
+
             if hasattr(self, 'layer7_1'):
                 QgsProject.instance().removeMapLayer(self.layer7_1)
             if hasattr(self, 'layer7_2'):
@@ -953,38 +942,34 @@ class QuickIGN:
                 QgsProject.instance().removeMapLayer(self.layer7_5)
             if hasattr(self, 'layer7_6'):
                 QgsProject.instance().removeMapLayer(self.layer7_6)
-            #
+
             self.canvas.refresh()
 
     def SymboServiceEtActivite(self):
-        #
         propsA = {'color': '#958631', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         A = QgsFillSymbol.createSimple(propsA)
         propsB = {'color': '#133A6A', 'size':'1', 'color_border' : '0,0,0', 'width_border': '0'}
         B = QgsFillSymbol.createSimple(propsB)
-        #
+        
         if hasattr(self, 'layer7_1'):
             self.layer7_1.setRenderer(QgsSingleSymbolRenderer(A))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer7_1.id())
         if hasattr(self, 'layer7_2'):        
             self.layer7_2.setRenderer(QgsSingleSymbolRenderer(B))
             self.iface.layerTreeView().refreshLayerSymbology(self.layer7_2.id())
-       
-        #
+            
         lineC = QgsLineSymbol.createSimple({'line_style': 'dash', 'color': '#002FFB'})
         lineD = QgsLineSymbol.createSimple({'line_style': 'continue', 'color': '#4F6988'})
-        #
+
         if hasattr(self, 'layer7_3'):
             self.layer7_3.renderer().setSymbol(lineC)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer7_3.id())
         if hasattr(self, 'layer7_4'):
             self.layer7_4.renderer().setSymbol(lineD)
             self.iface.layerTreeView().refreshLayerSymbology(self.layer7_4.id())
-       
-        #
         symbolE = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#FF4000', 'color_border' : '0,0,0', 'width_border': '0,3'})        
         symbolF = QgsMarkerSymbol.createSimple({'name': 'circle', 'color': '#ECA713', 'color_border' : '0,0,0', 'width_border': '0,3'})
-        #
+
         if hasattr(self, 'layer7_5'):
             self.layer7_5.renderer().setSymbol(symbolE)  
             self.iface.layerTreeView().refreshLayerSymbology(self.layer7_5.id())
@@ -993,7 +978,7 @@ class QuickIGN:
             self.iface.layerTreeView().refreshLayerSymbology(self.layer7_6.id())
 
     def ouvTransport(self):
-        #
+
         if self.dockwidget.checkBoxTransport.isChecked():
             if path.exists(self.url + '/TRANSPORT/EQUIPEMENT_DE_TRANSPORT.shp'):
                 self.layer8_1 = QgsVectorLayer(self.url + '/TRANSPORT/EQUIPEMENT_DE_TRANSPORT.shp', 'Equipement de transport', 'ogr')
